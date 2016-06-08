@@ -1,0 +1,34 @@
+{
+  "name": "issue-bot",
+  "version": "0.1.0",
+  "description": "Automate Issue replies and organization",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Glavin001/IssueBot.git"
+  },
+  "keywords": [
+    "issue",
+    "github",
+    "bot",
+    "automation",
+    "issues",
+    "organize"
+  ],
+  "author": "Glavin Wiechert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Glavin001/IssueBot/issues"
+  },
+  "homepage": "https://github.com/Glavin001/IssueBot#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.6",
+    "config": "^1.21.0",
+    "github": "^1.1.1",
+    "lodash": "^4.13.1",
+    "mkdirp": "^0.5.1"
+  }
+}
