@@ -31,15 +31,19 @@ function* range(begin, end, interval = 1) {
 
 // Get list of Issues for repository
 const githubPageSize = 100;
-let user = 'Glavin001';
-let repo = 'atom-beautify';
+//'Glavin001';
+//'atom-beautify';
+// let user = 'reactjs';
+// let repo = 'redux';
+let user = 'nodejs';
+let repo = 'node';
 let dataPath = path.resolve(__dirname, '../data/',user,repo);
 console.log('dataPath', dataPath);
 async.parallel([
   (cb) => mkdirp(dataPath, cb),
   (cb) => {
     // FIXME: make this dynamic
-    let numOfIssues = 1007;
+    let numOfIssues = 5000;
 
     // Get all Repositories
     let pages = range(1, parseInt(numOfIssues / githubPageSize) + 2, 1);

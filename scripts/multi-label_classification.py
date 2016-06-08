@@ -39,10 +39,12 @@ def filter_labels(labels, ignore_labels):
     return labels
 
 # Get JSON data
-user = "Glavin001"
-repo = "atom-beautify"
+# user = "reactjs" #"Glavin001"
+# repo = "redux" #"atom-beautify"
+user = "nodejs"
+repo = "node"
 repoPath = './data/'+user+'/'+repo+'/'
-ignore_labels = ['duplicate', 'in-progress', 'pending-publication', 'published', 'duplicate', 'waiting-for-user-information']
+ignore_labels = ['duplicate', 'in-progress', 'pending-publication', 'published', 'waiting-for-user-information']
 with open(repoPath+'issues.json') as data_file:
     issues = json.load(data_file)
 
@@ -52,8 +54,8 @@ with open(repoPath+'issues.json') as data_file:
     y_test = []
     for issue in issues:
         # Ignore Pull Requests
-        # if issue.has_key('pull_request'):
-        #     pass
+        if issue.has_key('pull_request'):
+            pass
         labels = filter_labels(issue['labels'], ignore_labels)
         text = issue['text'].replace("\n"," ").replace('\r', ' ')
         if len(labels) > 0: # and issue['state'] == 'closed':
@@ -95,12 +97,22 @@ with open(repoPath+'issues.json') as data_file:
     #                    'hello welcome to new york. enjoy it here and london too'])
     # target_names = ['New York', 'London']
 
+    predicted_train = predict_with_classifier(classifier, X_train)
+    wrong = 0
+    for i in xrange(0, len(X_train)):
+        if set(predicted_train[i][1]) != set(y_train[i]):
+            wrong+=1
+            print("Expected ",y_train[i]," got ",predicted_train[i][1], " for ",predicted_train[i][0])
 
-    predicted = predict_with_classifier(classifier, x_test)
+    print("Wrong ", wrong)
+    print("Out of ", len(X_train))
+    print("Percentage: ", wrong/len(X_train))
+
+    predicted_test = predict_with_classifier(classifier, x_test)
 
     print(len(x_train), len(x_test))
     results = []
-    for item, labels in predicted:
+    for item, labels in predicted_test:
         results.append({
             "text": item,
             "labels": labels
