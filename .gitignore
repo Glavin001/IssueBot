@@ -1,5 +1,6 @@
 data/
 config/local.json
+public/dist
 
 # Logs
 logs

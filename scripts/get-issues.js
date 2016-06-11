@@ -29,6 +29,14 @@ function* range(begin, end, interval = 1) {
   }
 }
 
+github.activity.getEventsForUser({
+  user: 'Issue-Manager'
+}, (err, events) => {
+  console.log('Events', err, events);
+});
+
+return;
+
 // Get list of Issues for repository
 const githubPageSize = 100;
 //'Glavin001';
