@@ -6,9 +6,17 @@ export default class App extends Component {
     socket: React.PropTypes.object.isRequired,
   }
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      socket: io()
+    };
+  }
+
   getChildContext() {
     return {
-      socket: io()
+      socket: this.state.socket
     };
   }
 

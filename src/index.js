@@ -7,10 +7,12 @@ const mkdirp = require('mkdirp');
 const async = require('async');
 const express = require('express');
 const GitHubOAuth = require('github-oauth');
-const socketHandlers = require('./socket');
+const socketHandlers = require('./api');
 const {sequelize} = require("./models");
 
-sequelize.sync().then(() => {
+sequelize.sync({
+  force: true
+}).then(() => {
 
   const app = express();
   const server = require('http').Server(app);
@@ -20,7 +22,7 @@ sequelize.sync().then(() => {
   const githubOAuth = GitHubOAuth({
     githubClient: config.get('github.client_id'),
     githubSecret: config.get('github.client_secret'),
-    baseURL: `http://localhost:${config.get('server.port')}`,
+    baseURL: `${config.get('server.base_url')}`,
     loginURI: '/github/login',
     callbackURI: '/github/callback',
     scope: 'user write:repo_hook repo' // optional, default scope is set to user
@@ -32,12 +34,6 @@ sequelize.sync().then(() => {
   app.get('/', function(req, res) {
     res.sendfile('index.html');
   });
-
-  // github.activity.getEventsForUser({
-  //   user: 'Issue-Manager'
-  // }, (err, events) => {
-  //   console.log('Events', err, events);
-  // });
 
   app.get('/github/login', function(req, res) {
     return githubOAuth.login(req, res);
@@ -58,7 +54,9 @@ sequelize.sync().then(() => {
     res.redirect(`/#/setup?access_token=${access_token}`);
   });
 
-  io.on('connection', socketHandlers);
+  io.on('connection', (socket) => {
+    return socketHandlers(socket, io);
+  });
 
   server.listen(config.get('server.port'), function() {
     console.log(`App listening on port ${config.get('server.port')}!`);

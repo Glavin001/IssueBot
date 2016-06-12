@@ -5,6 +5,7 @@ import { Router, Route, Link, hashHistory, IndexRedirect } from 'react-router'
 import App from './components/app';
 import Welcome from './components/welcome';
 import Setup from './components/setup';
+import Syncing from './components/syncing';
 import NoMatch from './components/no_match';
 
 import 'font-awesome-webpack';
@@ -16,6 +17,7 @@ ReactDOM.render((
       <IndexRedirect to="welcome" />
       <Route path="welcome" component={Welcome} />
       <Route path="setup" component={Setup} />
+      <Route path="syncing" component={Syncing} />
       <Route path="*" component={NoMatch} />
     </Route>
   </Router>

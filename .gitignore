@@ -3,6 +3,7 @@ config/local.json
 public/dist
 
 # Logs
+logfile
 logs
 *.log
 

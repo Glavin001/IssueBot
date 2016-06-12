@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const async = require('async');
+const {getIssues} = require('../src/issues');
 
 // Setup client(s)
 const GitHubToken = config.get('github.token');
@@ -18,29 +19,9 @@ github.authenticate({
     token: GitHubToken
 });
 
-// ===== Helpers =======
-
-// http://davidarvelo.com/blog/array-number-range-sequences-in-javascript-es6/
-// create a generator function returning an
-// iterator to a specified range of numbers
-function* range(begin, end, interval = 1) {
-  for (let i = begin; i < end; i += interval) {
-    yield i;
-  }
-}
-
-github.activity.getEventsForUser({
-  user: 'Issue-Manager'
-}, (err, events) => {
-  console.log('Events', err, events);
-});
-
-return;
-
 // Get list of Issues for repository
-const githubPageSize = 100;
-//'Glavin001';
-//'atom-beautify';
+// let user = 'Glavin001';
+// let repo = 'atom-beautify';
 // let user = 'reactjs';
 // let repo = 'redux';
 let user = 'nodejs';
@@ -50,28 +31,19 @@ console.log('dataPath', dataPath);
 async.parallel([
   (cb) => mkdirp(dataPath, cb),
   (cb) => {
-    // FIXME: make this dynamic
-    let numOfIssues = 5000;
-
-    // Get all Repositories
-    let pages = range(1, parseInt(numOfIssues / githubPageSize) + 2, 1);
-    async.map(pages, (page, cb) => {
-      github.issues.getForRepo({
-        user,
-        repo,
-        page,
-        state: 'all',
-        per_page: githubPageSize,
-      }, cb);
-    }, (error, issues) => {
-      if (error) {
-        return cb(error);
-      }
-      issues = _.flatten(issues);
+    function showProgress({percent}) {
+      console.log('progress', percent);
+    }
+    getIssues(github, user, repo, showProgress)
+    .then((issues) => {
       return cb(null, issues);
+    })
+    .catch((err) => {
+      return cb(err);
     })
   }
 ], (err, results) => {
+
   // Get contents for each Issue
   // console.log(err, issues);
   let issues = results[1];

@@ -5,6 +5,7 @@
         "client_secret": "CLIENT_SECRET"
     },
     "server": {
+      "base_url": "PUBLIC_URL",
       "port": 8080
     },
     "db": {
@@ -12,6 +13,7 @@
       "username": "USERNAME",
       "password": "PASSWORD",
       "host": "localhost",
-      "dialect": "postgres"
+      "dialect": "postgres",
+      "logging": false
     }
 }

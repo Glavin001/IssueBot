@@ -11,19 +11,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     body: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     labels: {
-      type: DataTypes.ARRAY(DataTypes.DECIMAL),
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     },
     milestones: {
-      type: DataTypes.ARRAY(DataTypes.DECIMAL),
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     }
   }, {
