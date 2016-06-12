@@ -120,6 +120,8 @@ module.exports = function(socket, io) {
 
           // Insert Repository
           let repo = results.repo;
+          let {issues} = results;
+          let repoId = repo.id;
           Repository.upsert(results.repo)
           .then(() => {
             progress({
@@ -127,9 +129,12 @@ module.exports = function(socket, io) {
               percent: 0.5
             });
 
+            // Delete any existing Issues
+            // Sequelize + PostgreSQL does not support Bulk+Upsert
+            return Issue.destroy({where:{repository_id: repoId}});
+          })
+          .then(() => {
             // Bulk Insert Issues
-            let {issues} = results;
-            let repoId = repo.id;
             _.each(issues, (issue) => {
               // Associate Issue with Repository
               issue.repository_id = repoId;
@@ -148,7 +153,7 @@ module.exports = function(socket, io) {
             return cb(null, issues);
           })
           .catch((err) => {
-            return cb(err.message);
+            return cb(err);
           });
 
         }],
@@ -202,6 +207,7 @@ module.exports = function(socket, io) {
         }]
       }, (err, results) => {
         console.log('Done!', err, Object.keys(results));
+        socket.leave(repoRoom);
 
         // TOOD:
         return cb(err && err.message, results);

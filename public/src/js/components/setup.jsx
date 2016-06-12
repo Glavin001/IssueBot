@@ -80,8 +80,10 @@ export default class Setup extends Component {
           <Then>{() =>
             <div>
               <div>
+                {/*
                 <img src={_.get(this.state, 'user.avatar_url')} alt="user avatar" className="img-thumbnail" />
-                <p>{_.get(this.state, 'user.login')}</p>
+                */}
+                <p className="lead">Welcome, <a href={_.get(this.state, 'user.html_url')}>@{_.get(this.state, 'user.login')}</a>!</p>
               </div>
               <div className="input-group input-group-lg">
                 <span className="input-group-addon">
