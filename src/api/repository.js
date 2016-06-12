@@ -7,6 +7,7 @@ const {Repository, Issue} = require('../models');
 const async = require('async');
 const _ = require('lodash');
 const {getIssues} = require('../issues');
+const {train} = require('../classifier');
 
 const github = new GitHubApi({debug: false});
 
@@ -201,9 +202,21 @@ module.exports = function(socket, io) {
         train: ['records', (results, cb) => {
           progress({
             task: REPOSITORY_SYNC_TASKS.TRAIN,
-            percent: 1
+            percent: 0
           });
-          cb();
+
+          train(results.issues)
+          .then((resp) => {
+            progress({
+              task: REPOSITORY_SYNC_TASKS.TRAIN,
+              percent: 1
+            });
+            return cb();
+          })
+          .catch((err) => {
+            return cb(err);
+          })
+
         }]
       }, (err, results) => {
         console.log('Done!', err, Object.keys(results));

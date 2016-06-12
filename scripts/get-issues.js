@@ -20,12 +20,12 @@ github.authenticate({
 });
 
 // Get list of Issues for repository
-// let user = 'Glavin001';
-// let repo = 'atom-beautify';
+let user = 'Glavin001';
+let repo = 'atom-beautify';
 // let user = 'reactjs';
 // let repo = 'redux';
-let user = 'nodejs';
-let repo = 'node';
+// let user = 'nodejs';
+// let repo = 'node';
 let dataPath = path.resolve(__dirname, '../data/',user,repo);
 console.log('dataPath', dataPath);
 async.parallel([
@@ -48,14 +48,9 @@ async.parallel([
   // console.log(err, issues);
   let issues = results[1];
   issues = _.map(issues, (issue) => {
-    let labels = _.map(issue.labels, 'name');
-    return {
-      number: issue.number,
-      pull_request: issue.pull_request,
-      state: issue.state,
-      text: `${issue.title} \n ${issue.body}`,
-      labels: labels
-    };
+    issue.labels = _.map(issue.labels, 'name');
+    issue.milestone = _.get(issue.milestone, 'title') || null;
+    return _.pick(issue, ['number','pull_request','state','title','body','labels','milestone']);
   });
 
 
