@@ -2,7 +2,8 @@
     "github": {
         "token": "TOKEN",
         "client_id": "CLIENT_ID",
-        "client_secret": "CLIENT_SECRET"
+        "client_secret": "CLIENT_SECRET",
+        "webhook_secret": "issues!"
     },
     "server": {
       "base_url": "PUBLIC_URL",

@@ -20,10 +20,10 @@ github.authenticate({
 });
 
 // Get list of Issues for repository
-let user = 'Glavin001';
-let repo = 'atom-beautify';
-// let user = 'reactjs';
-// let repo = 'redux';
+// let user = 'Glavin001';
+// let repo = 'atom-beautify';
+let user = 'reactjs';
+let repo = 'redux';
 // let user = 'nodejs';
 // let repo = 'node';
 let dataPath = path.resolve(__dirname, '../data/',user,repo);

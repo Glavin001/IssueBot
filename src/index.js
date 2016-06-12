@@ -3,15 +3,16 @@ const config = require('config');
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const async = require('async');
 const express = require('express');
 const GitHubOAuth = require('github-oauth');
 const socketHandlers = require('./api');
-const {sequelize} = require("./models");
+const {sequelize, Repository, Issue} = require("./models");
+const createHandler = require('github-webhook-handler');
+const webhookHandler = createHandler({ path: '/webhook', secret: config.get('github.webhook_secret') });
 
 sequelize.sync({
-  force: true
+  // force: true
 }).then(() => {
 
   const app = express();
@@ -43,6 +44,15 @@ sequelize.sync({
     return githubOAuth.callback(req, res);
   });
 
+  app.post('/webhook', (req, res) => {
+    console.log('webhooks!');
+    webhookHandler(req, res, (err) => {
+      console.error(err);
+      res.statusCode = 404;
+       res.end('no such location');
+    });
+  });
+
   githubOAuth.on('error', function(err) {
     console.error('there was a login error', err);
   });
@@ -56,6 +66,10 @@ sequelize.sync({
 
   io.on('connection', (socket) => {
     return socketHandlers(socket, io);
+  });
+
+  webhookHandler.on('issues', (event) => {
+    Issue.webhook(event);
   });
 
   server.listen(config.get('server.port'), function() {

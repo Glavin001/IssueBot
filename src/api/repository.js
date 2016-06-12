@@ -58,10 +58,7 @@ module.exports = function(socket, io) {
             if (err) {
               return cb(err);
             }
-            // Pick only the used fields
-            repo = _.pick(repo, ['id','owner','name','description']);
-            // Simplify the owner field
-            repo.owner = _.get(repo, 'owner.login');
+            repo = Repository.transformFields(repo);
             // Attach the authentication token for repository access later
             repo.token = socket.token;
 
@@ -88,13 +85,7 @@ module.exports = function(socket, io) {
           .then((results) => {
             console.log('Has Issues!', results.length);
             // Transform GitHub Issues list
-            let issues = _.map(results, (issue) => {
-              // Pick only the used fields
-              issue = _.pick(issue, ['id','number','state','title','body','labels','milestones']);
-              issue.labels = _.map(issue.labels, 'name');
-              issue.milestones = _.map(issue.milestones, 'title');
-              return issue;
-            });
+            let issues = _.map(results, Issue.transformFields);
 
             progress({
               task: REPOSITORY_SYNC_TASKS.ISSUES,
@@ -170,9 +161,9 @@ module.exports = function(socket, io) {
             percent: 0
           });
 
-
           let {repo} = results;
-          let webhookUrl = `${config.get('server.base_url')}/${repo.owner}/${repo.name}`;
+          // let webhookUrl = `${config.get('server.base_url')}/webhook/${repo.owner}/${repo.name}`;
+          let webhookUrl = `${config.get('server.base_url')}/webhook`;
           socket.github.repos.createHook({
             user: repo.owner,
             repo: repo.name,
@@ -182,6 +173,7 @@ module.exports = function(socket, io) {
             config: {
               url: webhookUrl,
               content_type: 'json',
+              secret: config.get('github.webhook_secret')
             }
           }, (err) => {
             progress({
@@ -199,13 +191,25 @@ module.exports = function(socket, io) {
         /**
 
         */
-        train: ['records', (results, cb) => {
+        train: ['repo', 'records', (results, cb) => {
           progress({
             task: REPOSITORY_SYNC_TASKS.TRAIN,
             percent: 0
           });
+          let issues = results.issues;
+          if (issues.length <= 1) {
+            progress({
+              task: REPOSITORY_SYNC_TASKS.TRAIN,
+              percent: 1
+            });
+            return cb();
+          }
 
-          train(results.issues)
+          let {repo} = results;
+          let {owner, name} = repo;
+          let ignoreLabels = []; // TODO
+
+          train(owner, name, issues, ignoreLabels)
           .then((resp) => {
             progress({
               task: REPOSITORY_SYNC_TASKS.TRAIN,
