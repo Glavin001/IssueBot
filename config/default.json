@@ -8,6 +8,9 @@
       "base_url": "PUBLIC_URL",
       "port": 8080
     },
+    "app": {
+      "base_url": "PUBLIC_URL"
+    },
     "db": {
       "database": "issue-manager",
       "username": "USERNAME",

@@ -1,5 +1,10 @@
+var webpack = require('webpack');
+
 module.exports = {
   entry: {
+    // 'webpack-dev-server/client?http://localhost:3000',
+    // 'webpack/hot/only-dev-server',
+    // './public/src/js/app.jsx',
     javascript: './public/src/js/app.jsx',
     html: './public/src/index.html'
   },
@@ -10,6 +15,9 @@ module.exports = {
   resolve: {
     extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx"]
   },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ],
   module: {
     loaders: [
       {
@@ -18,8 +26,7 @@ module.exports = {
       }, {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
+        loaders: ['react-hot', 'babel?'+JSON.stringify({
           presets: [
             'react', 'es2015'
           ],
@@ -27,7 +34,7 @@ module.exports = {
             'syntax-class-properties',
             'transform-class-properties'
           ]
-        }
+        })]
       }, {
         test: /\.css$/,
         loader: 'style!css'

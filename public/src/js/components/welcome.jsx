@@ -6,7 +6,7 @@ export default class Welcome extends Component {
       <div className="jumbotron">
         <h1>Issue Manager!</h1>
         <p>Your automated Issue organizer.</p>
-        <p><a className="btn btn-primary btn-lg" href="/github/login" role="button">Login with GitHub</a></p>
+        <p><a className="btn btn-primary btn-lg" href="http://issue-manager.ngrok.io/github/login" role="button">Login with GitHub</a></p>
         </div>
       </div>);
   }

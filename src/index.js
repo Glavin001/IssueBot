@@ -51,7 +51,7 @@ sequelize.sync({
     console.log('here is your shiny new github oauth token', token);
     let access_token = token.access_token;
     // res.end(JSON.stringify(token));
-    res.redirect(`/#/setup?access_token=${access_token}`);
+    res.redirect(`${config.get('app.base_url')}/#/setup?access_token=${access_token}`);
   });
 
   io.on('connection', (socket) => {

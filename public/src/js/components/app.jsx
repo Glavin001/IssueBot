@@ -10,7 +10,7 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      socket: io()
+      socket: io('http://issue-manager.ngrok.io')
     };
   }
 
