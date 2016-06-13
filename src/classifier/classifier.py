@@ -56,7 +56,8 @@ def transform_issue(issue, ignore_labels=[]):
     title = (issue['title'] or "").encode('utf-8')
     body = (issue['body'] or "").encode('utf-8')
     text = (title + " " + body).replace("\n"," ").replace('\r', ' ')
-    return (text, labels)
+    number = issue['number']
+    return (number, text, labels)
 
 # simple JSON echo script
 def train_issues(owner, repo, issues, ignore_labels = []):
@@ -70,7 +71,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
         if issue.has_key('pull_request'):
             pass
 
-        (text, labels) = transform_issue(issue, ignore_labels)
+        (number, text, labels) = transform_issue(issue, ignore_labels)
 
         if len(labels) > 0: # and issue['state'] == 'closed':
         # if milestone != None:
@@ -168,7 +169,7 @@ def predict_issue_labels(owner, repo, issue):
     lb = joblib.load(binarizer_path)
 
     # Predict label of issue
-    (text, _) = transform_issue(issue)
+    (_, text, _) = transform_issue(issue)
 
     x = np.array([text])
     (_, labels, _) = predict_with_classifier(classifier, x, lb)
