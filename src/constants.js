@@ -20,6 +20,6 @@ module.exports = Object.freeze({
     TRAIN_LABELS: 'Training model for predicting labels of Issues (This may take a moment)',
     TRAIN_MILESTONES: 'Training model for predicting milestone of Issues (Coming soon)',
     TRAIN_ASSIGNEES: 'Training model for predicting assignees of Issues (Coming soon)',
-    TRAIN_DUPLICATES: 'Training model for predicting duplicates of Issues (Coming soon)',
+    ISSUE_SIMILARITIES: 'Training model for predicting duplicates of Issues (This may take a moment)',
   }
 });

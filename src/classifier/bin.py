@@ -15,5 +15,8 @@ for line in sys.stdin:
     elif action == "predict_labels":
         ( user, repo, issues ) = params
         results = classifier.predict_labels_for_issues(user, repo, issues)
+    elif action == "similarity":
+        issues = params[0]
+        results = classifier.issue_similarity(issues)
 
     print json.dumps(results)

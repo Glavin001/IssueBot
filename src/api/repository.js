@@ -7,7 +7,7 @@ const {Repository, Issue} = require('../models');
 const async = require('async');
 const _ = require('lodash');
 const {getIssues} = require('../issues');
-const {train} = require('../classifier');
+const {train, issueSimilarities} = require('../classifier');
 
 const github = new GitHubApi({debug: false});
 
@@ -231,18 +231,36 @@ module.exports = function(socket, io) {
               message: err.message
             });
             return cb(err);
-          })
+          });
 
         }],
         /**
         Train model to detect duplicate issues
         */
-        train_duplicates: ['repo', 'issues', 'records', (results, cb) => {
+        issue_similarities: ['issues', (results, cb) => {
           progress({
-            task: REPOSITORY_SYNC_TASKS.TRAIN_DUPLICATES,
-            percent: 1
+            task: REPOSITORY_SYNC_TASKS.ISSUE_SIMILARITIES,
+            percent: 0
           });
-          return cb();
+          let issues = results.issues;
+          
+          issueSimilarities(issues)
+          .then((resp) => {
+            progress({
+              task: REPOSITORY_SYNC_TASKS.ISSUE_SIMILARITIES,
+              percent: 1
+            });
+            return cb(null, resp);
+          })
+          .catch((err) => {
+            progress({
+              task: REPOSITORY_SYNC_TASKS.ISSUE_SIMILARITIES,
+              percent: 1,
+              message: err.message
+            });
+            return cb(err);
+          });
+
         }],
         /**
         Train model to predict assignees for issues

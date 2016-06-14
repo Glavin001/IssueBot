@@ -1,8 +1,13 @@
 # Dependencies
 import sys
+import json
+from pprint import pprint
+import os
+import datetime
+# Machine Learning
 import numpy as np
 from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer, TfidfVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
@@ -11,10 +16,25 @@ from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
 from sklearn import preprocessing
 from sklearn import metrics
 from sklearn.externals import joblib
-import json
-from pprint import pprint
-import os
-import datetime
+from sklearn.metrics.pairwise import pairwise_distances
+
+#################################################################
+# General Helpers
+#################################################################
+
+def persist_model(owner, repo, model_name, model):
+    # Persist the model
+    model_path = os.path.abspath(os.path.join('./data',owner,repo,model_name,'model.pkl'))
+    try:
+        os.makedirs(os.path.dirname(model_path))
+    except:
+        pass
+    return joblib.dump(model, model_path)
+
+def load_model(owner, repo, model_name):
+    # Load Model
+    modelPath = os.path.abspath(os.path.join('./data',owner,repo,model_name,'model.pkl'))
+    return joblib.load(modelPath)
 
 #################################################################
 # Issue Labels
@@ -35,6 +55,7 @@ def train_classifier(x, y, lb):
 
     classifier = Pipeline([
         ('vectorizer', CountVectorizer(
+            min_df=0,
             ngram_range=(1,3),
             analyzer='word',
             # stop_words='english',
@@ -71,7 +92,7 @@ def predict_with_classifier(classifier, x, lb):
     predicted_labels = lb.inverse_transform(predicted)
     all_labels = list(lb.classes_)
     probs = predict_proba(x, classifier)
-    confidences = [zip(lb.classes_, c) for c in probs]
+    confidences = [dict(zip(lb.classes_, c)) for c in probs]
     return zip(x, predicted_labels, confidences)
 
 def filter_list(items, ignore_items):
@@ -92,6 +113,9 @@ def transform_issue(issue, ignore_labels=[]):
     return (number, text, labels)
 
 def train_issues(owner, repo, issues, ignore_labels = []):
+
+    # FIXME: Obtain this from the user!
+    # ignore_labels = ['quick-todo', 'wontfix', 'user-update-atom', 'in-progress', 'pending-publication', 'published', 'waiting-for-user-information', 'high priority']
 
     # Filter issues
     # Ignore Pull Requests
@@ -174,14 +198,8 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     classifier = train_classifier(X_train, y_train, lb)
 
     # Persist the model
-    model_path = os.path.abspath(os.path.join('./data',owner,repo,'issues-model.pkl'))
-    binarizer_path = os.path.abspath(os.path.join('./data',owner,repo,'issues-binarizer.pkl'))
-    try:
-        os.makedirs(os.path.dirname(model_path))
-    except:
-        pass
-    joblib.dump(classifier, model_path)
-    joblib.dump(lb, binarizer_path)
+    persist_model(owner, repo, 'issues-model', classifier)
+    persist_model(owner, repo, 'issues-binarizer', lb)
 
     # Score the model
     score = score_classifier(X_train, y_train, lb, classifier)
@@ -291,11 +309,9 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     })
 
 def predict_labels_for_issues(owner, repo, issues):
-    # Load Model
-    modelPath = os.path.abspath(os.path.join('./data',owner,repo,'issues-model.pkl'))
-    binarizer_path = os.path.abspath(os.path.join('./data',owner,repo,'issues-binarizer.pkl'))
-    classifier = joblib.load(modelPath)
-    lb = joblib.load(binarizer_path)
+    # Load models
+    classifier = load_model(owner, repo, 'issues-model')
+    lb = load_model(owner, repo, 'issues-binarizer')
 
     # Preprocess Issues
     issues = [transform_issue(issue) for issue in issues]
@@ -308,5 +324,47 @@ def predict_labels_for_issues(owner, repo, issues):
     # print(results)
 
     return zip(issueNumbers, results)
+
+#################################################################
+# Issue Duplication Detection
+#################################################################
+
+similarity_threshold = 0.7
+
+def tfidf_similarity(X, Y=None):
+    if Y == None:
+        Y = X.T
+    matrix = (X * Y).A
+    # matrix = pairwise_distances(X, Y, metric='cosine')
+    # matrix = pairwise_distances(X, Y, metric='euclidean')
+    return matrix
+
+def issue_similarity(issues):
+    issues = [transform_issue(issue) for issue in issues]
+    # issue = (number, text, labels)
+    issue_numbers = [issue[0] for issue in issues]
+    issue_texts = [issue[1] for issue in issues]
+
+    vect = TfidfVectorizer(min_df=0, ngram_range=(1,5))
+    tfidf = vect.fit_transform(issue_texts)
+    matrix = tfidf_similarity(tfidf)
+
+    # Map issue_numbers with respective scores
+    results = [zip(issue_numbers, scores) for scores in matrix]
+    # Filter
+    results = [dict(filter(lambda r: r[1] >= similarity_threshold, row)) for row in results]
+    # Map (key=issue_number, value=result)
+    results = dict(zip(issue_numbers, results))
+    # Clean results
+    for issue_number in issue_numbers:
+        # Remove similarity with itself
+        if issue_number in results and issue_number in results[issue_number]:
+            del results[issue_number][issue_number]
+        # Delete empty entries
+        if not results[issue_number]:
+            del results[issue_number]
+    # And we're done!
+    return results
+
 
 

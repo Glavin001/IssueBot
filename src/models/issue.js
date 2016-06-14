@@ -53,8 +53,7 @@ module.exports = function(sequelize, DataTypes) {
           .then((results) => {
             console.log('labelIssue', JSON.stringify(results));
             let [number, data] = results;
-            let [,labels,labelScores] = data;
-            let confidenceMap = _.fromPairs(labelScores);
+            let [,labels, confidenceMap] = data;
             let labelsWithConfidence = _.map(labels, (label) => {
               let confidence = (confidenceMap[label] * 100).toFixed(2);
               return `\`${label}\` (${confidence}% confident)`

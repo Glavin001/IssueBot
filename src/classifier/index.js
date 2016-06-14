@@ -52,9 +52,17 @@ function predictIssuesLabels(user, repo, issues) {
   ]);
 }
 
+function issueSimilarities(issues) {
+  return _run([
+    'similarity',
+    [issues]
+  ]);
+}
+
 module.exports = {
   train,
   predictIssueLabels,
   predictIssuesLabels,
+  issueSimilarities,
 };
 

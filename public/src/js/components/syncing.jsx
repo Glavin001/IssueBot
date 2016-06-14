@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { EVENTS, REPOSITORY_SYNC_TASKS } from '../../../../src/constants';
 import { If, Then, Else } from 'react-if';
 import _ from 'lodash';
+import Graph from './graph';
 
 export default class Syncing extends Component {
 
@@ -54,7 +55,7 @@ export default class Syncing extends Component {
   }
 
   resetTasks() {
-    let tasks = _.chain(REPOSITORY_SYNC_TASKS).values().map((t) => [t,0]).fromPairs().value();
+    let tasks = _.chain(REPOSITORY_SYNC_TASKS).values().map((t) => [t,null]).fromPairs().value();
     console.log('tasks', tasks);
     this.setState({
       tasks,
@@ -68,7 +69,7 @@ export default class Syncing extends Component {
       console.log('sync', err, results);
       this.setState({
         doneTasks: true,
-        results
+        results,
       })
       setTimeout(() => {
         // Scroll to show results below
@@ -79,43 +80,101 @@ export default class Syncing extends Component {
 
   }
 
+  issueSimilaritiesToGraph(issueSimilarities) {
+    var width = 960;
+    var height = 500;
+
+    console.log('issueSimilarities', issueSimilarities);
+    let nodeIndices = {};
+    let nodes = _.map(issueSimilarities, (v,k) => {
+      let node = {
+        key: k,
+        size: Object.keys(v).length,
+        x: width / 2 + _.random(-150, 150),
+        y: height / 2 + _.random(-25, 25),
+      };
+      nodeIndices[k] = node;
+      return node;
+    });
+    nodeIndices = _.mapValues(nodeIndices, (node) => {
+      return _.indexOf(nodes, node);
+    })
+    let links = _.flatten(_.map(issueSimilarities, (v,source) => {
+      return _.map(v, (size, target) => {
+        return {
+          source: nodeIndices[source],
+          target: nodeIndices[target],
+          key: `${source}-${target}`,
+          size,
+        };
+      })
+    }));
+    let graph =  { nodes, links };
+    console.log('issueSimilaritiesToGraph', graph);
+    return graph;
+  }
+
   render() {
 
     let trainLabels = _.get(this.state, 'results.train_labels');
-    let repo = _.get(this.state, 'results.repo');
+    let repo = _.get(this.state, 'results.repo') || {};
+    let issueSimilarities = _.get(this.state, 'results.issue_similarities') || {};
 
     return (<div>
         <h1>Issue Manager</h1>
         <button className="btn btn-primary" onClick={this.syncRepo}>Sync</button>
         <hr/>
         <div>
-          {_.map(this.state.tasks, (percent, task) => {
-            let progressValue = parseInt(percent*100)
-            return (<div key={task} className="">
-              <div className="">
-                <span className="lead">
-                  <span>
-                    <i className={"fa "+(percent >= 1.0 ? "fa-check text-success" : "fa-refresh fa-spin fa-fw text-info")} aria-hidden="true"></i>
+          {_.map(this.state.tasks, (value, task) => {
+            if (value == null) {
+              return (<div key={task} className="">
+                <div className="">
+                  <span className="lead">
+                    <span>
+                      <i className={"fa "+(value >= 1.0 ? "fa-check text-success" : "fa-refresh fa-spin fa-fw text-info")} aria-hidden="true"></i>
+                    </span>
+                    <span>{task}</span>
                   </span>
-                  <span>{task}</span>
-                </span>
-                <div className="progress">
-                  <div className={"progress-bar progress-bar-striped active "+(progressValue >= 100 ? 'progress-bar-success':'progress-bar-info')} role="progressbar" aria-valuenow={progressValue} aria-valuemin="0" aria-valuemax="100" style={{width: progressValue+'%'}}>
-                    {progressValue}%
+                  <div className="text-info">
+                    Task has not started yet.
                   </div>
                 </div>
-              </div>
-            </div>);
+              </div>);
+            } else if (typeof value === 'number') {
+              let progressValue = parseInt(value*100)
+              return (<div key={task} className="">
+                <div className="">
+                  <span className="lead">
+                    <span>
+                      <i className={"fa "+(value >= 1.0 ? "fa-check text-success" : "fa-refresh fa-spin fa-fw text-info")} aria-hidden="true"></i>
+                    </span>
+                    <span>{task}</span>
+                  </span>
+                  <div className="progress">
+                    <div className={"progress-bar progress-bar-striped active "+(progressValue >= 100 ? 'progress-bar-success':'progress-bar-info')} role="progressbar" aria-valuenow={progressValue} aria-valuemin="0" aria-valuemax="100" style={{width: progressValue+'%'}}>
+                      {progressValue}%
+                    </div>
+                  </div>
+                </div>
+              </div>);
+            } else {
+              // Maybe an error?
+            }
           })}
         </div>
         <hr/>
-        <If condition={ !!this.state.doneTasks }>
+        <If condition={ !!(this.state.doneTasks && this.state.results) }>
           <Then>
             <div>
               <h1 id="training-results">
                 Results for <a href={`https://github.com/${repo.owner}/${repo.name}`} target="_blank">
                   {repo.owner}/{repo.name}
-                </a>
+                </a> <small>on {(() => {
+                  let d = new Date(_.get(trainLabels,'date'));
+                  let ds = `${d.toDateString()}, ${d.toTimeString()}`;
+                  return (<span>{ds}</span>);
+                })()}
+                </small>
               </h1>
               <p className="lead">This is what we learned by analyzing your Issues!</p>
 
@@ -136,14 +195,14 @@ export default class Syncing extends Component {
                         <p>
                         You may have noticed some missing labels.
                         We are using <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">k-fold cross-validation</a> with k={_.get(trainLabels, 'params.k_folds')}.
-                        This technique requires that we have at least {_.get(trainLabels, 'params.k_folds')} Issues for a given label (or class) to train from.
+                        This technique requires that we have at least {_.get(trainLabels, 'params.k_folds')} Issues to support a given label (or class) to train with.
                         </p>
                         <div>
                           The following labels were removed:
                           <ul className="labels-removed">
                             {_.map(_.get(trainLabels, 'labels.remove_labels') || [], (label) => {
                               let count = _.get(trainLabels, 'labels.label_counts.'+label);
-                              return (<li>
+                              return (<li key={label}>
                                 <span className="label-removed  label label-default">{label}</span> from {count} issue{count > 1 ? 's' : ''}
                               </li>);
                             })}
@@ -167,7 +226,13 @@ export default class Syncing extends Component {
 
               <div className="duplicate-results">
                 <h2>Duplicates</h2>
-                <p className="lead">Coming soon!</p>
+                <p className="lead">Found {Object.keys(issueSimilarities).length} similar issues!</p>
+                <div>
+                  {(() => {
+                    let similarIssuesGraph = this.issueSimilaritiesToGraph(issueSimilarities);
+                    return (<Graph nodes={similarIssuesGraph.nodes} links={similarIssuesGraph.links} />);
+                  })()}
+                </div>
               </div>
 
               <div className="milestone-results">

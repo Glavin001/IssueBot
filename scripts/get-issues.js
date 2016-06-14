@@ -21,9 +21,9 @@ github.authenticate({
 
 // Get list of Issues for repository
 let user = 'Glavin001';
-let repo = 'test-issues';
+// let repo = 'test-issues';
 // let repo = 'atom-preview';
-// let repo = 'atom-beautify';
+let repo = 'atom-beautify';
 // let user = 'reactjs';
 // let repo = 'redux';
 // let user = 'nodejs';
