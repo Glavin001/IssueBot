@@ -104,7 +104,7 @@ export default class Setup extends Component {
                   value={this.state.repositoryUrl}
                   onChange={this.checkRepositoryURL}/>
                 <span className="input-group-btn">
-                  <Link to={{ pathname: '/syncing', query: {repositoryUrl: this.state.repositoryUrl} }}
+                  <Link to={{ pathname: '/syncing', query: {repository_url: this.state.repositoryUrl, access_token: this.state.token } }}
                     className={"btn btn-success "+(this.state.isValidRepository ? '' : 'disabled')} type="button">Sync!</Link>
                 </span>
               </div>

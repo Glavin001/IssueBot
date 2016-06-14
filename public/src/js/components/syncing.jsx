@@ -16,15 +16,32 @@ export default class Syncing extends Component {
 
     const { location } = this.props;
     const { query } = location;
-    const { repositoryUrl } = query;
+    const {
+      repository_url: repositoryUrl,
+      access_token: token
+    } = query;
     this.state = {
       repositoryUrl,
+      token,
+      unlabelledIssues: []
     };
   }
 
   componentDidMount() {
     console.log('Syncing!');
     this.resetTasks();
+
+    // Re-login, in case user refreshes page
+    // Note: this also makes development a lot easier ;)
+    this.context.socket.emit(EVENTS.AUTHENTICATE, this.state.token, (err, user) => {
+      console.log(err, user);
+      this.setState({
+        user
+      });
+
+      this.syncRepo();
+
+    });
 
     this.context.socket.on(EVENTS.REPOSITORY_SYNC_PROGRESS, (data) => {
       console.log('progress', data);
@@ -34,8 +51,6 @@ export default class Syncing extends Component {
       this.setState({tasks});
 
     });
-
-    this.syncRepo();
 
   }
 
@@ -86,10 +101,12 @@ export default class Syncing extends Component {
           })}
         </div>
         <hr/>
-        <If condition={ this.state.doneTasks }>
+        <If condition={ !!this.state.doneTasks }>
           <Then>
             <div>DONE!</div>
           </Then>
+          <Else>
+          </Else>
         </If>
       </div>);
   }
