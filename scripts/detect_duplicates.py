@@ -4,6 +4,7 @@
 ###
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import pairwise_distances
 
 import json
 from pprint import pprint
@@ -109,15 +110,22 @@ import classifier
 
 
 # Get JSON data
-# user = "Glavin001"
-# repo = "atom-beautify"
-user = "reactjs" #"Glavin001"
-repo = "redux" #"atom-beautify"
+user = "Glavin001"
+repo = "atom-beautify"
+# repo = "test-issues"
+# user = "reactjs" #"Glavin001"
+# repo = "redux" #"atom-beautify"
 # user = "nodejs"
 # repo = "node"
 repoPath = './data/'+user+'/'+repo+'/'
 
 # ignore_labels = ['duplicate', 'in-progress', 'pending-publication', 'published', 'waiting-for-user-information', 'high priority']
+
+def similarity(tfidf):
+    matrix = (tfidf * tfidf.T).A
+    # matrix = pairwise_distances(tfidf, metric='cosine')
+    # matrix = pairwise_distances(tfidf, metric='euclidean')
+    return matrix
 
 with open(repoPath+'issues.json') as data_file:
     issues = json.load(data_file)
@@ -126,10 +134,13 @@ with open(repoPath+'issues.json') as data_file:
     # issue = (number, text, labels)
     issueTexts = [issue[1] for issue in issues]
 
-    vect = TfidfVectorizer(min_df=0, ngram_range=(1,3))
+    vect = TfidfVectorizer(min_df=0, ngram_range=(1,10))
     tfidf = vect.fit_transform(issueTexts)
+    print(tfidf)
 
-    matrix = (tfidf * tfidf.T).A
+    matrix = similarity(tfidf)
+    # print(matrix)
+
     # for issue in issues:
     for i in xrange(0, len(issues)):
         issue = issues[i]
@@ -139,11 +150,12 @@ with open(repoPath+'issues.json') as data_file:
         # Delete itself
         del similarity[i]
         closestValue = max(similarity)
-        if closestValue >= 0.9:
+        if closestValue >= 0.8:
 
             if "duplicate" in set(labels):
                 print ("Issue "+str(number)+" (index "+str(i)+") is a duplicate: ", labels)
             else:
+                # continue;
                 print ("Issue "+str(number)+" (index "+str(i)+") is not (yet) a duplicate: ", labels)
 
             closestIndex = similarity.index(closestValue)
