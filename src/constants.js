@@ -17,6 +17,9 @@ module.exports = Object.freeze({
     ISSUES: 'Retrieving issues for repository',
     DATABASE: 'Syncing repository and issues with database',
     WEBHOOK: 'Setting up Webhooks for repository',
-    TRAIN: 'Training model for repository',
+    TRAIN_LABELS: 'Training model for predicting labels of Issues (This may take a moment)',
+    TRAIN_MILESTONES: 'Training model for predicting milestone of Issues (Coming soon)',
+    TRAIN_ASSIGNEES: 'Training model for predicting assignees of Issues (Coming soon)',
+    TRAIN_DUPLICATES: 'Training model for predicting duplicates of Issues (Coming soon)',
   }
 });

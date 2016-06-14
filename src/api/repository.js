@@ -176,30 +176,41 @@ module.exports = function(socket, io) {
               secret: config.get('github.webhook_secret')
             }
           }, (err) => {
-            progress({
-              task: REPOSITORY_SYNC_TASKS.WEBHOOK,
-              percent: 1,
-              message: err && err.message
-            });
             if (err) {
               console.log('webhook error', err);
+              let errorMessage = err && err.message;
+              try {
+                errorMessage = _.get(JSON.parse(err.message), 'errors[0].message');
+              } catch (err) {
+                // Don't worry about it right now
+              }
+              progress({
+                task: REPOSITORY_SYNC_TASKS.WEBHOOK,
+                percent: 1,
+                message: errorMessage
+              });
+            } else {
+              progress({
+                task: REPOSITORY_SYNC_TASKS.WEBHOOK,
+                percent: 1,
+              });
             }
             return cb();
             // return cb(err && err.message);
           });
         }],
         /**
-
+        Train model to label issues
         */
-        train: ['repo', 'records', (results, cb) => {
+        train_labels: ['repo', 'issues', 'records', (results, cb) => {
           progress({
-            task: REPOSITORY_SYNC_TASKS.TRAIN,
+            task: REPOSITORY_SYNC_TASKS.TRAIN_LABELS,
             percent: 0
           });
           let issues = results.issues;
           if (issues.length <= 1) {
             progress({
-              task: REPOSITORY_SYNC_TASKS.TRAIN,
+              task: REPOSITORY_SYNC_TASKS.TRAIN_LABELS,
               percent: 1
             });
             return cb();
@@ -209,18 +220,53 @@ module.exports = function(socket, io) {
           let {owner, name} = repo;
           let ignoreLabels = []; // TODO
 
-          train(owner, name, issues, ignoreLabels)
+          train('labels', [owner, name, issues, ignoreLabels])
           .then((resp) => {
             progress({
-              task: REPOSITORY_SYNC_TASKS.TRAIN,
+              task: REPOSITORY_SYNC_TASKS.TRAIN_LABELS,
               percent: 1
             });
             return cb();
           })
           .catch((err) => {
+            progress({
+              task: REPOSITORY_SYNC_TASKS.TRAIN_LABELS,
+              percent: 1,
+              message: err.message
+            });
             return cb(err);
           })
 
+        }],
+        /**
+        Train model to detect duplicate issues
+        */
+        train_duplicates: ['repo', 'issues', 'records', (results, cb) => {
+          progress({
+            task: REPOSITORY_SYNC_TASKS.TRAIN_DUPLICATES,
+            percent: 1
+          });
+          return cb();
+        }],
+        /**
+        Train model to predict assignees for issues
+        */
+        train_assignees: ['repo', 'issues', 'records', (results, cb) => {
+          progress({
+            task: REPOSITORY_SYNC_TASKS.TRAIN_ASSIGNEES,
+            percent: 1
+          });
+          return cb();
+        }],
+        /**
+        Train model to predict milestones for issues
+        */
+        train_milestones: ['repo', 'issues', 'records', (results, cb) => {
+          progress({
+            task: REPOSITORY_SYNC_TASKS.TRAIN_MILESTONES,
+            percent: 1
+          });
+          return cb();
         }]
       }, (err, results) => {
         console.log('Done!', err, Object.keys(results));

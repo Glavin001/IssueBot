@@ -9,16 +9,18 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src', 'classifier
 import classifier
 
 # Get JSON data
-user = "Glavin001"
-repo = "atom-beautify"
-# user = "reactjs" #"Glavin001"
-# repo = "redux" #"atom-beautify"
+# user = "Glavin001"
+# repo = "test-issues"
+# repo = "atom-beautify"
+# repo = "atom-preview"
+user = "reactjs"
+repo = "redux"
 # user = "nodejs"
 # repo = "node"
 repoPath = './data/'+user+'/'+repo+'/'
 
-ignore_labels = ['duplicate', 'in-progress', 'pending-publication', 'published', 'waiting-for-user-information', 'high priority']
-
+# ignore_labels = ['duplicate', 'in-progress', 'pending-publication', 'published', 'waiting-for-user-information', 'high priority']
+ignore_labels = ['duplicate']
 with open(repoPath+'issues.json') as data_file:
     issues = json.load(data_file)
 
@@ -28,7 +30,6 @@ with open(repoPath+'issues.json') as data_file:
     with open(repoPath+'results.json', 'w') as out_file:
         json.dump(results, out_file, indent=4)
 
-
-    issue = issues[0]
-    labels = classifier.predict_issue_labels(user, repo, issue)
-    print (labels, issue)
+    # issues = issues[0:1]
+    # results = classifier.predict_labels_for_issues(user, repo, issues)
+    # print results
