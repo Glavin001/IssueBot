@@ -26,6 +26,7 @@ export default class Setup extends Component {
       repo: null,
       isValidRepository: false,
     };
+
   }
 
   componentDidMount() {

@@ -3,6 +3,10 @@ $bootstrap-sass-asset-helper: true;
 // $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 @import '~bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
+.welcome {
+  margin-top: 10%;
+}
+
 .label-results {
   .label-removed {
     margin-left: 2px;
@@ -13,7 +17,7 @@ $bootstrap-sass-asset-helper: true;
 svg.graph {
   width: 100%;
   height: 100%;
-  
+
   .update {
     color: #888888;
     position:absolute;

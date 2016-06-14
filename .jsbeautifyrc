@@ -1,6 +1,6 @@
 {
   "html": {
-    "indent_size": 4
+    "indent_size": 2
   },
   "js": {
     "indent_char": 2

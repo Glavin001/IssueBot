@@ -25,6 +25,7 @@ export default class Syncing extends Component {
       repositoryUrl,
       token,
     };
+
   }
 
   componentDidMount() {
@@ -59,17 +60,22 @@ export default class Syncing extends Component {
     console.log('tasks', tasks);
     this.setState({
       tasks,
-      doneTasks: false
+      doneTasks: false,
+      results: null,
+      error: null,
     });
   }
 
   syncRepo() {
 
-    this.context.socket.emit(EVENTS.REPOSITORY_SYNC, this.state.repositoryUrl, (err, results) => {
-      console.log('sync', err, results);
+    this.resetTasks();
+
+    this.context.socket.emit(EVENTS.REPOSITORY_SYNC, this.state.repositoryUrl, (error, results) => {
+      console.log('sync', error, results);
       this.setState({
         doneTasks: true,
         results,
+        error
       })
       setTimeout(() => {
         // Scroll to show results below
@@ -122,7 +128,9 @@ export default class Syncing extends Component {
 
     return (<div>
         <h1>Issue Manager</h1>
-        <button className="btn btn-primary" onClick={this.syncRepo}>Sync</button>
+        <button className="btn btn-primary" onClick={this.syncRepo}>
+          <span className="fa fa-refresh" aria-hidden="true"></span> Sync
+        </button>
         <hr/>
         <div>
           {_.map(this.state.tasks, (value, task) => {
@@ -167,7 +175,7 @@ export default class Syncing extends Component {
           <Then>
             <div>
               <h1 id="training-results">
-                Results for <a href={`https://github.com/${repo.owner}/${repo.name}`} target="_blank">
+                <span className="fa fa-table" aria-hidden="true"></span> Results for <a href={`https://github.com/${repo.owner}/${repo.name}`} target="_blank">
                   {repo.owner}/{repo.name}
                 </a> <small>on {(() => {
                   // let d = new Date(_.get(trainLabels,'date'));
@@ -177,12 +185,17 @@ export default class Syncing extends Component {
                 })()}
                 </small>
               </h1>
-              <p className="lead">This is what we learned by analyzing your Issues!</p>
 
-              <div className="label-results">
-                <h2>Labels</h2>
-                <If condition={ _.get(trainLabels, 'ok') }>
-                  <Then>
+              <If condition={ !this.state.error }>
+                <Then>
+                  <div>
+
+                  <p className="lead">This is what we learned by analyzing your Issues!</p>
+
+                  <div className="label-results">
+                    <h2>
+                      <span className="fa fa-tags" aria-hidden="true"></span> Labels
+                    </h2>
                     <div>
                       <p className="lead">
                         We correctly predicted {_.get(trainLabels, 'issues.correct_issues_count')} of {_.get(trainLabels, 'issues.total')} labelled issues,
@@ -210,53 +223,67 @@ export default class Syncing extends Component {
                           </ul>
                         </div>
                         <p>
-                        Note that <span className="label-removed label label-default">duplicate</span>
-                        is always removed because it is a label that requires a more complicated approach to detect.
+                        Note that <span className="label-removed label label-default">duplicate</span> and <span className="label-removed label label-default">wontfix</span> are
+                        always removed because they are labels that requires a more complicated approach to detect.
                         We will take more about <span className="label-removed label label-default">duplicate</span> issues later.
                         </p>
                       </div>
                     </div>
-                  </Then>
-                  <Else>
-                    <p className="lead">An error occurred!
-                    Please <a href="https://github.com/Glavin001/IssueBot/issues/new" target="_blank">click here to create an issue</a> and
-                    be sure to share your repository URL so we can test it, too! Thanks!</p>
-                  </Else>
-                </If>
-              </div>
+                  </div>
 
-              <div className="duplicate-results">
-                <h2>Duplicates</h2>
-                <p className="lead">Found {Object.keys(issueSimilarities).length} similar issues!</p>
-                <p>You can open an Issue by double-clicking on a node</p>
-                <div className="well">
-                  {(() => {
-                    let similarIssuesGraph = this.issueSimilaritiesToGraph(repo, issueSimilarities);
-                    let width = 500;
-                    let height = 500;
-                    let charge = -200;
-                    let linkDistance = 100;
-                    let linkStrength = 0.1;
-                    return (<Graph width={width} height={height}
-                      charge={charge} linkDistance={linkDistance} linkStrength={linkStrength}
-                      nodes={similarIssuesGraph.nodes} links={similarIssuesGraph.links} />);
-                  })()}
+                  <div className="duplicate-results">
+                    <h2>
+                      <span className="fa fa-files-o" aria-hidden="true"></span> Duplicates
+                    </h2>
+                    <p className="lead">Found {Object.keys(issueSimilarities).length} similar issues!</p>
+                    <p>
+                      You can open an Issue by double-clicking on its respective <span className="label label-primary">node</span>.
+                      Note that the <span className="label label-success">edges</span> between the nodes are thicker and pull tighter when two Issues (<span className="label label-primary">nodes</span>) are very similar.
+                      The size of the <span className="label label-primary">node</span> corresponds to the number of similar Issues it has.
+                      Thus, a larger <span className="label label-primary">node</span> indicates an Issue that is very similar to many other Issues.
+                    </p>
+                    <div className="well">
+                      {(() => {
+                        let similarIssuesGraph = this.issueSimilaritiesToGraph(repo, issueSimilarities);
+                        let width = 600;
+                        let height = 600;
+                        let charge = -200;
+                        let linkDistance = 100;
+                        let linkStrength = 0.1;
+                        return (<Graph width={width} height={height}
+                          charge={charge} linkDistance={linkDistance} linkStrength={linkStrength}
+                          nodes={similarIssuesGraph.nodes} links={similarIssuesGraph.links} />);
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className="milestone-results">
+                    <h2>Milestones</h2>
+                    <p className="lead">Coming soon!</p>
+                  </div>
+
+                  <div className="assignees-results">
+                    <h2>Assignees</h2>
+                    <p className="lead">Coming soon!</p>
+                  </div>
+
                 </div>
-              </div>
-
-              <div className="milestone-results">
-                <h2>Milestones</h2>
-                <p className="lead">Coming soon!</p>
-              </div>
-
-              <div className="assignees-results">
-                <h2>Assignees</h2>
-                <p className="lead">Coming soon!</p>
-              </div>
-
+                </Then>
+                <Else>
+                  <p className="lead">An error occurred!
+                  Please <a href="https://github.com/Glavin001/IssueBot/issues/new" target="_blank">click here to create an issue</a> and
+                  be sure to share your repository URL so we can test it, too! Thanks!</p>
+                </Else>
+              </If>
             </div>
           </Then>
           <Else>
+            <div>
+              <span className="lead">
+                <i className="fa fa-refresh fa-spin fa-fw text-info" aria-hidden="true"></i>
+                Loading...
+              </span>
+            </div>
           </Else>
         </If>
       </div>);
