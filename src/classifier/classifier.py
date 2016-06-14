@@ -135,7 +135,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             else:
                 label_counts[label] = 1
     # Check for labels with insufficient number of examples
-    remove_labels = ['duplicate']
+    remove_labels = ['duplicate', 'wontfix']
     for label in label_counts.keys():
         if label_counts[label] < k_folds:
             remove_labels.append(label)
