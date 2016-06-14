@@ -80,9 +80,8 @@ export default class Syncing extends Component {
 
   }
 
-  issueSimilaritiesToGraph(issueSimilarities) {
-    var width = 960;
-    var height = 500;
+  issueSimilaritiesToGraph(repo, issueSimilarities) {
+    let similarityThreshold = 0.7;
 
     console.log('issueSimilarities', issueSimilarities);
     let nodeIndices = {};
@@ -91,15 +90,17 @@ export default class Syncing extends Component {
         key: k,
         text: `#${k}`,
         size: Object.keys(v).length,
+        url: `https://github.com/${repo.owner}/${repo.name}/issues/${k}`,
       };
       nodeIndices[k] = node;
       return node;
     });
     nodeIndices = _.mapValues(nodeIndices, (node) => {
       return _.indexOf(nodes, node);
-    })
+    });
     let links = _.flatten(_.map(issueSimilarities, (v,source) => {
-      return _.map(v, (size, target) => {
+      return _.map(v, (score, target) => {
+        let size = (score-similarityThreshold) / (1.0-similarityThreshold);
         return {
           source: nodeIndices[source],
           target: nodeIndices[target],
@@ -169,8 +170,9 @@ export default class Syncing extends Component {
                 Results for <a href={`https://github.com/${repo.owner}/${repo.name}`} target="_blank">
                   {repo.owner}/{repo.name}
                 </a> <small>on {(() => {
-                  let d = new Date(_.get(trainLabels,'date'));
-                  let ds = `${d.toDateString()}, ${d.toTimeString()}`;
+                  // let d = new Date(_.get(trainLabels,'date'));
+                  // let ds = `${d.toDateString()}, ${d.toTimeString()}`;
+                  let ds = _.get(trainLabels,'date');
                   return (<span>{ds}</span>);
                 })()}
                 </small>
@@ -184,7 +186,7 @@ export default class Syncing extends Component {
                     <div>
                       <p className="lead">
                         We correctly predicted {_.get(trainLabels, 'issues.correct_issues_count')} of {_.get(trainLabels, 'issues.total')} labelled issues,
-                        obtaining a score of <strong>{_.get(trainLabels, 'metrics.score') * 100}%</strong>!
+                        obtaining a score of <strong>{(_.get(trainLabels, 'metrics.score') * 100).toFixed(2)}%</strong>!
                       </p>
                       <div>
                         <p>For those of you interested in more metrics, here is a report!</p>
@@ -226,10 +228,18 @@ export default class Syncing extends Component {
               <div className="duplicate-results">
                 <h2>Duplicates</h2>
                 <p className="lead">Found {Object.keys(issueSimilarities).length} similar issues!</p>
+                <p>You can open an Issue by double-clicking on a node</p>
                 <div className="well">
                   {(() => {
-                    let similarIssuesGraph = this.issueSimilaritiesToGraph(issueSimilarities);
-                    return (<Graph nodes={similarIssuesGraph.nodes} links={similarIssuesGraph.links} />);
+                    let similarIssuesGraph = this.issueSimilaritiesToGraph(repo, issueSimilarities);
+                    let width = 500;
+                    let height = 500;
+                    let charge = -200;
+                    let linkDistance = 100;
+                    let linkStrength = 0.1;
+                    return (<Graph width={width} height={height}
+                      charge={charge} linkDistance={linkDistance} linkStrength={linkStrength}
+                      nodes={similarIssuesGraph.nodes} links={similarIssuesGraph.links} />);
                   })()}
                 </div>
               </div>
