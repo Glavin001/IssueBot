@@ -257,11 +257,14 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     # print("Wrong ", wrong)
     # print("Out of ", len(X_train))
     # print("Percentage: ", wrong/len(X_train))
-    # target_names = list(lb.classes_)
+    target_names = lb.classes_
     # print(target_names)
     # print(Y)
     # print(pred_train)
-    # report = str(metrics.classification_report(Y, pred_train, target_names))
+    report = str(metrics.classification_report(Y, pred_y, target_names=target_names))
+    # print(report)
+    # confusion_matrix = metrics.confusion_matrix(Y, pred_y)
+    # print(confusion_matrix)
 
     predicted_test = predict_with_classifier(classifier, x_test, lb)
 
@@ -287,24 +290,36 @@ def train_issues(owner, repo, issues, ignore_labels = []):
                 "confidence": confidence
             })
 
-    #     print '%s => %s' % (item, ', '.join(labels))
     return ({
         "ok": True,
-        # "report": report,
-        "score": score,
-        "n_folds": n_folds,
-        # "score2": score2,
-        # "confusion_matrix": cm,
-        "wrong_issues_count": len(wrong_issues),
-        "wrong_issues": wrong_issues,
-        "correct_issues_count": len(correct_results),
-        "correct_issues": correct_results,
-        "total": len(X_train),
-        "percentage": 1.0 - len(wrong_issues) / len(X_train),
-        "unlabeled_issues_count": len(unlabeled_issues),
-        "unlabeled_issues": unlabeled_issues,
-        "newly_labeled_issues_count": len(newly_labeled_issues),
-        "newly_labeled_issues": newly_labeled_issues
+        # "confusion_matrix": confusion_matrix,
+        "metrics": {
+            # "percentage": 1.0 - len(wrong_issues) / len(X_train),
+            "score": score,
+            "report": report,
+            "recall": metrics.recall_score(Y, pred_y),
+            "precision": metrics.precision_score(Y, pred_y),
+            "f1": metrics.f1_score(Y, pred_y)
+        },
+        "params": {
+            "n_folds": n_folds,
+        },
+        "issues": {
+            "total": len(X_train),
+            "wrong_issues_count": len(wrong_issues),
+            "wrong_issues": wrong_issues,
+            "correct_issues_count": len(correct_results),
+            "correct_issues": correct_results,
+            "unlabeled_issues_count": len(unlabeled_issues),
+            "unlabeled_issues": unlabeled_issues,
+            "newly_labeled_issues_count": len(newly_labeled_issues),
+            "newly_labeled_issues": newly_labeled_issues,
+        },
+        "labels": {
+            "label_counts": label_counts,
+            "all_labels": label_counts.keys(),
+            "remove_labels": remove_labels,
+        },
     })
 
 def predict_labels_for_issues(owner, repo, issues):
@@ -322,8 +337,6 @@ def predict_labels_for_issues(owner, repo, issues):
     # Predict label of issue
     x = np.array(issueTexts)
     results = predict_with_classifier(classifier, x, lb)
-    # print(results)
-    # (_, labels, pred) = results
 
     return zip(issueNumbers, results)
 

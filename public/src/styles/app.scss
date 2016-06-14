@@ -3,3 +3,9 @@ $bootstrap-sass-asset-helper: true;
 // $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 @import '~bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
+.label-results {
+  .label-removed {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+}

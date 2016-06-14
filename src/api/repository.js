@@ -182,7 +182,10 @@ module.exports = function(socket, io) {
               try {
                 errorMessage = _.get(JSON.parse(err.message), 'errors[0].message');
               } catch (err) {
-                // Don't worry about it right now
+                // Don't worry about it right now.
+                // These errors are likely because of duplicate webhook.
+                // We can write webhooks but cannot read, so we write assuming it does not exist
+                // and fail silently otherwise.
               }
               progress({
                 task: REPOSITORY_SYNC_TASKS.WEBHOOK,
@@ -208,13 +211,6 @@ module.exports = function(socket, io) {
             percent: 0
           });
           let issues = results.issues;
-          if (issues.length <= 1) {
-            progress({
-              task: REPOSITORY_SYNC_TASKS.TRAIN_LABELS,
-              percent: 1
-            });
-            return cb();
-          }
 
           let {repo} = results;
           let {owner, name} = repo;
@@ -226,7 +222,7 @@ module.exports = function(socket, io) {
               task: REPOSITORY_SYNC_TASKS.TRAIN_LABELS,
               percent: 1
             });
-            return cb();
+            return cb(null, resp);
           })
           .catch((err) => {
             progress({

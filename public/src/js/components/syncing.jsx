@@ -23,7 +23,6 @@ export default class Syncing extends Component {
     this.state = {
       repositoryUrl,
       token,
-      unlabelledIssues: []
     };
   }
 
@@ -68,13 +67,21 @@ export default class Syncing extends Component {
     this.context.socket.emit(EVENTS.REPOSITORY_SYNC, this.state.repositoryUrl, (err, results) => {
       console.log('sync', err, results);
       this.setState({
-        doneTasks: true
+        doneTasks: true,
+        results
       })
+      setTimeout(() => {
+        // Scroll to show results below
+        // Cite: http://stackoverflow.com/a/4801674/2578205
+        document.getElementById('training-results').scrollIntoView( true );
+      }, 1);
     });
 
   }
 
   render() {
+
+    let trainLabels = _.get(this.state, 'results.train_labels');
 
     return (<div>
         <h1>Issue Manager</h1>
@@ -103,7 +110,62 @@ export default class Syncing extends Component {
         <hr/>
         <If condition={ !!this.state.doneTasks }>
           <Then>
-            <div>DONE!</div>
+            <div>
+              <h1 id="training-results">Results</h1>
+              <p>This is what we learned by analyzing your Issues!</p>
+
+              <div className="label-results">
+                <h2>Labels</h2>
+                <p className="lead">
+                  We correctly predicted {_.get(trainLabels, 'issues.correct_issues_count')} of {_.get(trainLabels, 'issues.total')} labelled issues,
+                  obtaining a score of <strong>{_.get(trainLabels, 'metrics.score') * 100}%</strong>!
+                </p>
+                <div>
+                  <p>For those of you interested in more metrics, here is a report!</p>
+                  <pre>{_.get(trainLabels, 'metrics.report')}</pre>
+                </div>
+                <div>
+                  <p>
+                  You may have noticed some missing labels.
+                  We are using <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">k-fold cross-validation</a> with k={_.get(trainLabels, 'params.n_folds')}.
+                  This technique requires that we have at least {_.get(trainLabels, 'params.n_folds')} Issues for a given label (or class) to train from.
+                  </p>
+                  <div>
+                    The following labels were removed:
+                    <ul className="labels-removed">
+                      {_.map(_.get(trainLabels, 'labels.remove_labels') || [], (label) => {
+                        let count = _.get(trainLabels, 'labels.label_counts.'+label);
+                        return (<li>
+                          <span className="label-removed  label label-default">{label}</span> with only {count} issue{count > 1 ? 's' : ''}
+                        </li>);
+                      })}
+                      <li><span className="label-removed label label-default">duplicate</span></li>
+                    </ul>
+                  </div>
+                  <p>
+                  Note that <span className="label-removed label label-default">duplicate</span>
+                  is always removed because it is a label that requires a more complicated approach to detect.
+                  We will take more about <span className="label-removed label label-default">duplicate</span> issues later.
+                  </p>
+                </div>
+              </div>
+
+              <div className="duplicate-results">
+                <h2>Duplicates</h2>
+                <p className="lead">Coming soon!</p>
+              </div>
+
+              <div className="milestone-results">
+                <h2>Milestones</h2>
+                <p className="lead">Coming soon!</p>
+              </div>
+
+              <div className="assignees-results">
+                <h2>Assignees</h2>
+                <p className="lead">Coming soon!</p>
+              </div>
+
+            </div>
           </Then>
           <Else>
           </Else>

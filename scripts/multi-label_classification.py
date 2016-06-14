@@ -9,12 +9,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src', 'classifier
 import classifier
 
 # Get JSON data
-# user = "Glavin001"
+user = "Glavin001"
 # repo = "test-issues"
-# repo = "atom-beautify"
+repo = "atom-beautify"
 # repo = "atom-preview"
-user = "reactjs"
-repo = "redux"
+# user = "reactjs"
+# repo = "redux"
 # user = "nodejs"
 # repo = "node"
 repoPath = './data/'+user+'/'+repo+'/'
@@ -30,6 +30,7 @@ with open(repoPath+'issues.json') as data_file:
     with open(repoPath+'results.json', 'w') as out_file:
         json.dump(results, out_file, indent=4)
 
+    print results['metrics']
     # issues = issues[0:1]
     # results = classifier.predict_labels_for_issues(user, repo, issues)
     # print results

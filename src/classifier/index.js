@@ -29,7 +29,7 @@ module.exports = {
         data
       ]))
       .end(function (err) {
-          if (err) return reject(err);
+          if (err && !message) return reject(err);
           resolve(message);
       });
 
@@ -58,7 +58,7 @@ module.exports = {
         ]
       ]))
       .end(function (err) {
-          if (err) return reject(err);
+          if (err && !message) return reject(err);
           resolve(message);
       });
     });
