@@ -7,7 +7,7 @@ var width = 960;
 var height = 500;
 var force = d3.layout.force()
   .charge(-300)
-  .linkDistance(500)
+  .linkDistance(100)
   .size([width, height]);
 
 // *****************************************************
@@ -18,13 +18,16 @@ var enterNode = (selection) => {
   selection.classed('node', true);
 
   selection.append('circle')
-    .attr("r", (d) => d.size)
-    .call(force.drag);
+    .attr("r", (d) => d.size + 1)
+    .call(force.drag)
+    .on('click', (event) => {
+      console.log('node clicked!', event);
+    });
 
   selection.append('text')
     .attr("x", (d) => d.size + 5)
     .attr("dy", ".35em")
-    .text((d) => d.key);
+    .text((d) => d.text);
 };
 
 var updateNode = (selection) => {
@@ -70,8 +73,10 @@ export default class Graph extends Component {
 
   shouldComponentUpdate(nextProps) {
     console.log('Graph shouldComponentUpdate', nextProps);
-    this.d3Graph = d3.select(ReactDOM.findDOMNode(this.refs.graph));
+    let g = d3.select(ReactDOM.findDOMNode(this.refs.graph));
+    this.d3Graph = g;
     console.log(this.d3Graph);
+
 
     var d3Nodes = this.d3Graph.selectAll('.node')
       .data(nextProps.nodes, (node) => node.key);
@@ -84,6 +89,14 @@ export default class Graph extends Component {
     d3Links.enter().insert('line', '.node').call(enterLink);
     d3Links.exit().remove();
     d3Links.call(updateLink);
+
+    // Zoom
+    let svg = d3.select('svg.graph');
+    console.log('svg', svg, g);
+    svg.call(d3.behavior.zoom().on("zoom", () => {
+      console.log('zoom');
+      g.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+    }));
 
     // we should actually clone the nodes and links
     // since we're not supposed to directly mutate

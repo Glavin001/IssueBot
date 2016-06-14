@@ -89,9 +89,8 @@ export default class Syncing extends Component {
     let nodes = _.map(issueSimilarities, (v,k) => {
       let node = {
         key: k,
+        text: `#${k}`,
         size: Object.keys(v).length,
-        x: width / 2 + _.random(-150, 150),
-        y: height / 2 + _.random(-25, 25),
       };
       nodeIndices[k] = node;
       return node;
@@ -227,7 +226,7 @@ export default class Syncing extends Component {
               <div className="duplicate-results">
                 <h2>Duplicates</h2>
                 <p className="lead">Found {Object.keys(issueSimilarities).length} similar issues!</p>
-                <div>
+                <div className="well">
                   {(() => {
                     let similarIssuesGraph = this.issueSimilaritiesToGraph(issueSimilarities);
                     return (<Graph nodes={similarIssuesGraph.nodes} links={similarIssuesGraph.links} />);
