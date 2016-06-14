@@ -10,8 +10,8 @@ import classifier
 
 # Get JSON data
 user = "Glavin001"
-# repo = "test-issues"
-repo = "atom-beautify"
+repo = "test-issues"
+# repo = "atom-beautify"
 # repo = "atom-preview"
 # user = "reactjs"
 # repo = "redux"
@@ -31,6 +31,7 @@ with open(repoPath+'issues.json') as data_file:
         json.dump(results, out_file, indent=4)
 
     print results['metrics']
-    # issues = issues[0:1]
-    # results = classifier.predict_labels_for_issues(user, repo, issues)
-    # print results
+
+    issues = issues[0:1]
+    results = classifier.predict_labels_for_issues(user, repo, issues)
+    print results

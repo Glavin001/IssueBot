@@ -266,7 +266,9 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     # confusion_matrix = metrics.confusion_matrix(Y, pred_y)
     # print(confusion_matrix)
 
-    predicted_test = predict_with_classifier(classifier, x_test, lb)
+    predicted_test = []
+    if len(x_test) > 0:
+        predicted_test = predict_with_classifier(classifier, x_test, lb)
 
     # print(len(x_train), len(x_test))
     unlabeled_issues = []
