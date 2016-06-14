@@ -65,7 +65,11 @@ module.exports = {
           if (error) {
             return reject(error);
           }
-          issues = _.flatten(issues);
+          // Ensure that Issue is formated properly
+          _.each(_.flatten(issues), (issue) => {
+            issue.title = issue.title || '';
+            issue.body = issue.body || '';
+          });
           return resolve(issues);
         })
 
