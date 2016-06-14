@@ -47,10 +47,24 @@ module.exports = function(sequelize, DataTypes) {
       },
       labelIssue(issue) {
         const {Repository} = require('../models');
-        return Repository.predictIssueLabels(issue)
-        .then((results) => {
-          // TODO: Apply labels, etc
-          console.log('labelIssue', results);
+        return Repository.forIssue(issue)
+        .then((repo) => {
+          return repo.predictIssueLabels(issue)
+          .then((results) => {
+            console.log('labelIssue', JSON.stringify(results));
+            let [number, data] = results;
+            let [,labels,labelScores] = data;
+            let confidenceMap = _.fromPairs(labelScores);
+            let labelsWithConfidence = _.map(labels, (label) => {
+              let confidence = (confidenceMap[label] * 100).toFixed(2);
+              return `\`${label}\` (${confidence}% confident)`
+            });
+            let comment = `I have added labels ${labelsWithConfidence.join(', ')}.`;
+            return Promise.all([
+              repo.addLabelsToIssue(issue, labels),
+              repo.addCommentToIssue(issue, comment)
+            ]);
+          });
         });
       },
       webhook(event) {
@@ -73,6 +87,10 @@ module.exports = function(sequelize, DataTypes) {
             // Attempt to label it
             return Issue.labelIssue(issue);
           }
+        })
+        .catch((error) => {
+          console.warn('Webhook error: ');
+          console.error(error);
         });
       }
     },

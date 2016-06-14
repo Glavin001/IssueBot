@@ -2,22 +2,19 @@
 import sys
 import numpy as np
 from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import CountVectorizer
-
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
-
 from sklearn.calibration import CalibratedClassifierCV
-
-from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
 from sklearn import preprocessing
 from sklearn import metrics
+from sklearn.externals import joblib
 import json
 from pprint import pprint
-from sklearn.externals import joblib
 import os
+import datetime
 
 # Constants
 n_folds = 3 # n-fold cross-validation
@@ -146,14 +143,14 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             else:
                 label_counts[label] = 1
     # Check for labels with insufficient number of examples
-    remove_labels = []
+    remove_labels = ['duplicate']
     for label in label_counts.keys():
         if label_counts[label] < n_folds:
             remove_labels.append(label)
 
     # Check if we have enough different classes remaining!
     if len(label_counts.keys()) - len(remove_labels) <= 1:
-        print("Not enough different classes!")
+        # print("Not enough different classes!")
         return ({
             "ok": False,
             "error_message": "Not enough different labels.",
@@ -176,7 +173,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
         for label in remove_labels:
             if label in labels:
                 labels.remove(label)
-                print("removed label ",label)
+                # print("removed label ",label)
 
         if len(labels) > 0: # and issue['state'] == 'closed':
         # if milestone != None:
@@ -193,7 +190,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     # print("Issues", x_train, y_train)
     # Check if we have enough issues remaining!
     if len(x_train) < n_folds:
-        print("Not enough issues!", len(x_train))
+        # print("Not enough issues!", len(x_train))
         return ({
             "ok": False,
             "error_message": "Not enough different labels.",
@@ -262,7 +259,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     # print(Y)
     # print(pred_train)
     report = str(metrics.classification_report(Y, pred_y, target_names=target_names))
-    # print(report)
+    print(report)
     # confusion_matrix = metrics.confusion_matrix(Y, pred_y)
     # print(confusion_matrix)
 
@@ -294,6 +291,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
 
     return ({
         "ok": True,
+        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         # "confusion_matrix": confusion_matrix,
         "metrics": {
             # "percentage": 1.0 - len(wrong_issues) / len(X_train),
@@ -339,6 +337,7 @@ def predict_labels_for_issues(owner, repo, issues):
     # Predict label of issue
     x = np.array(issueTexts)
     results = predict_with_classifier(classifier, x, lb)
+    # print(results)
 
     return zip(issueNumbers, results)
 

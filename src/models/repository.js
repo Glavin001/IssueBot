@@ -1,6 +1,9 @@
 "use strict";
 
 const _ = require('lodash');
+const config = require('config');
+const GitHubApi = require("github");
+const GitHubToken = config.get('github.token');
 
 module.exports = function(sequelize, DataTypes) {
   var Repository = sequelize.define("Repository", {
@@ -60,7 +63,42 @@ module.exports = function(sequelize, DataTypes) {
       },
       predictIssueLabels(issue) {
         const {predictIssueLabels} = require('../classifier');
-        return predictIssueLabels(this.owner, this.name, issue);
+        return predictIssueLabels(this.owner, this.name, issue)
+        .then((results) => {
+          return results[0];
+        });
+      },
+      getGitHubClient() {
+        const github = new GitHubApi({
+          debug: false,
+        });
+        // Create an authenticated GitHub client
+        github.authenticate({type: "oauth", token: this.token});
+        return github;
+      },
+      addLabelsToIssue(issue, labels) {
+        let {number} = issue;
+        let {owner, name} = this;
+        let github = this.getGitHubClient();
+        github.issues.addLabels({
+          user: owner,
+          repo: name,
+          number,
+          body: labels
+        });
+      },
+      addCommentToIssue(issue, body) {
+        let {number} = issue;
+        let {owner, name} = this;
+        let github = this.getGitHubClient();
+        // Add signature to body
+        body += config.get('comments.signature');
+        github.issues.createComment({
+          user: owner,
+          repo: name,
+          number,
+          body
+        });
       }
     },
     classMethods: {
@@ -84,13 +122,10 @@ module.exports = function(sequelize, DataTypes) {
           return repo.train();
         });
       },
-      predictIssueLabels(issue) {
+      forIssue(issue) {
         let repoId = issue.repository_id;
         // Find Repository associated with this Issue
         return Repository.findById(repoId)
-        .then((repo) => {
-          return repo.predictIssueLabels(issue);
-        });
       },
       webhook(event) {
         // TODO: Handle changes to repository

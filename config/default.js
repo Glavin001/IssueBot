@@ -1,4 +1,4 @@
-{
+module.exports = {
     "github": {
         "token": "TOKEN",
         "client_id": "CLIENT_ID",
@@ -19,5 +19,12 @@
       "host": "localhost",
       "dialect": "postgres",
       "logging": false
+    },
+    "comments": {
+      "signature": `
+
+---
+This comment was generated automatically by [Issue-Bot](https://github.com/Glavin001/IssueBot/).
+      `
     }
-}
+};

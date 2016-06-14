@@ -112,42 +112,52 @@ export default class Syncing extends Component {
           <Then>
             <div>
               <h1 id="training-results">Results</h1>
-              <p>This is what we learned by analyzing your Issues!</p>
+              <p className="lead">This is what we learned by analyzing your Issues!</p>
 
               <div className="label-results">
                 <h2>Labels</h2>
-                <p className="lead">
-                  We correctly predicted {_.get(trainLabels, 'issues.correct_issues_count')} of {_.get(trainLabels, 'issues.total')} labelled issues,
-                  obtaining a score of <strong>{_.get(trainLabels, 'metrics.score') * 100}%</strong>!
-                </p>
-                <div>
-                  <p>For those of you interested in more metrics, here is a report!</p>
-                  <pre>{_.get(trainLabels, 'metrics.report')}</pre>
-                </div>
-                <div>
-                  <p>
-                  You may have noticed some missing labels.
-                  We are using <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">k-fold cross-validation</a> with k={_.get(trainLabels, 'params.n_folds')}.
-                  This technique requires that we have at least {_.get(trainLabels, 'params.n_folds')} Issues for a given label (or class) to train from.
-                  </p>
-                  <div>
-                    The following labels were removed:
-                    <ul className="labels-removed">
-                      {_.map(_.get(trainLabels, 'labels.remove_labels') || [], (label) => {
-                        let count = _.get(trainLabels, 'labels.label_counts.'+label);
-                        return (<li>
-                          <span className="label-removed  label label-default">{label}</span> with only {count} issue{count > 1 ? 's' : ''}
-                        </li>);
-                      })}
-                      <li><span className="label-removed label label-default">duplicate</span></li>
-                    </ul>
-                  </div>
-                  <p>
-                  Note that <span className="label-removed label label-default">duplicate</span>
-                  is always removed because it is a label that requires a more complicated approach to detect.
-                  We will take more about <span className="label-removed label label-default">duplicate</span> issues later.
-                  </p>
-                </div>
+                <If condition={ _.get(trainLabels, 'ok') }>
+                  <Then>
+                    <div>
+                      <p className="lead">
+                        We correctly predicted {_.get(trainLabels, 'issues.correct_issues_count')} of {_.get(trainLabels, 'issues.total')} labelled issues,
+                        obtaining a score of <strong>{_.get(trainLabels, 'metrics.score') * 100}%</strong>!
+                      </p>
+                      <div>
+                        <p>For those of you interested in more metrics, here is a report!</p>
+                        <pre>{_.get(trainLabels, 'metrics.report')}</pre>
+                      </div>
+                      <div>
+                        <p>
+                        You may have noticed some missing labels.
+                        We are using <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">k-fold cross-validation</a> with k={_.get(trainLabels, 'params.n_folds')}.
+                        This technique requires that we have at least {_.get(trainLabels, 'params.n_folds')} Issues for a given label (or class) to train from.
+                        </p>
+                        <div>
+                          The following labels were removed:
+                          <ul className="labels-removed">
+                            {_.map(_.get(trainLabels, 'labels.remove_labels') || [], (label) => {
+                              let count = _.get(trainLabels, 'labels.label_counts.'+label);
+                              return (<li>
+                                <span className="label-removed  label label-default">{label}</span> with only {count} issue{count > 1 ? 's' : ''}
+                              </li>);
+                            })}
+                          </ul>
+                        </div>
+                        <p>
+                        Note that <span className="label-removed label label-default">duplicate</span>
+                        is always removed because it is a label that requires a more complicated approach to detect.
+                        We will take more about <span className="label-removed label label-default">duplicate</span> issues later.
+                        </p>
+                      </div>
+                    </div>
+                  </Then>
+                  <Else>
+                    <p className="lead">An error occurred!
+                    Please <a href="https://github.com/Glavin001/IssueBot/issues/new" target="_blank">click here to create an issue</a> and
+                    be sure to share your repository URL so we can test it, too! Thanks!</p>
+                  </Else>
+                </If>
               </div>
 
               <div className="duplicate-results">
