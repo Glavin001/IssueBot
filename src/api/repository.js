@@ -14,8 +14,12 @@ const github = new GitHubApi({debug: false});
 module.exports = function(socket, io) {
 
   socket.on(EVENTS.PARSE_REPOSITORY_URL, (repositoryUrl, cb) => {
-    let repo = parseGitHubUrl(repositoryUrl);
-    return cb(repo);
+    try {
+      let repo = parseGitHubUrl(repositoryUrl);
+      return cb(repo);
+    } catch (err) {
+      return cb(null);
+    }
   });
 
   /**
@@ -243,7 +247,7 @@ module.exports = function(socket, io) {
             percent: 0
           });
           let issues = results.issues;
-          
+
           issueSimilarities(issues)
           .then((resp) => {
             progress({
