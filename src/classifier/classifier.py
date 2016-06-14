@@ -16,35 +16,30 @@ from pprint import pprint
 import os
 import datetime
 
+#################################################################
+# Issue Labels
+#################################################################
+
 # Constants
-n_folds = 3 # n-fold cross-validation
-
-# Cite: http://www.erogol.com/predict-probabilities-sklearn-linearsvc/
-class LinearSVC_proba(LinearSVC):
-
-    def __platt_func(self,x):
-        return 1/(1+np.exp(-x))
-
-    def predict_proba(self, X):
-        f = np.vectorize(self.__platt_func)
-        raw_predictions = self.decision_function(X)
-        platt_predictions = f(raw_predictions)
-        probs = platt_predictions / platt_predictions.sum(axis=1)[:, None]
-        return probs
+k_folds = 3 # k-fold cross-validation
 
 def train_classifier(x, y, lb):
     # Convert to binary array
     # http://stackoverflow.com/a/34276057/2578205
     Y = lb.fit_transform(y)
 
-    if n_folds >= 2:
-        clf = CalibratedClassifierCV(LinearSVC(), cv=n_folds, method='sigmoid')
+    if k_folds >= 2:
+        clf = CalibratedClassifierCV(LinearSVC(), cv=k_folds, method='sigmoid')
     else:
         clf = LinearSVC()
-    # clf = LinearSVC_proba()
 
     classifier = Pipeline([
-        ('vectorizer', CountVectorizer(ngram_range=(1,3))),
+        ('vectorizer', CountVectorizer(
+            ngram_range=(1,3),
+            analyzer='word',
+            # stop_words='english',
+            strip_accents='unicode',
+        )),
         ('tfidf', TfidfTransformer()),
         # ('clf', OneVsOneClassifier(LinearSVC()))
         ('clf', OneVsRestClassifier(clf))
@@ -53,56 +48,30 @@ def train_classifier(x, y, lb):
         # ('clf', BernoulliNB(binarize=0.0)) # Does not work
         ])
 
-    # print(x,Y)
     classifier.fit(x, Y)
     return classifier
 
 def score_classifier(x,y,lb,classifier):
     Y = lb.fit_transform(y)
-    if n_folds >= 2:
+    if k_folds >= 2:
         return classifier.score(x,Y)
     else:
-        return 0.0
-        # return classifier.decision_function(x)
+        pred_y = predict_with_classifier(classifier, x, lb)
+        pred_Y = lb.transform([p[1] for p in predicted_train])
+        return metrics.accuracy_score(pred_Y, Y)
 
 def predict_proba(x, classifier):
-    if n_folds >= 2:
+    if k_folds >= 2:
         return classifier.predict_proba(x)
     else:
-        return 0
+        return 1.0
 
 def predict_with_classifier(classifier, x, lb):
     predicted = classifier.predict(x)
     predicted_labels = lb.inverse_transform(predicted)
     all_labels = list(lb.classes_)
-    # print(all_labels)
-    # predicted_labels_index = [all_labels.index(label) for label in predicted_labels]
-    # print(predicted_labels_index)
-    # d = classifier.decision_function(x)
-
     probs = predict_proba(x, classifier)
-    # confidences = lb.inverse_transform(d)
-    # confidences = [d[i][predicted_labels_index[i]] for i in xrange(0,len(x))]
-    # confidences = [d[i][predicted[i]] for i in xrange(0,len(x))]
     confidences = [zip(lb.classes_, c) for c in probs]
-    # confidences = [c if c[0] is predicted_labels[i] for ]
-    # scores = []
-    # for i in xrange(0,len(x)):
-    #     con = confidences[i]
-    #     label = predicted_labels[i]
-    #     scores.append(None) # default
-    #     for (c,v) in con:
-    #         # print(i, c,v,label)
-    #         if set(c) == set(label):
-    #             scores[i] = v
-    #             break
-    # print(predicted)
-    # print(all_labels)
-    # print(d)
-    # print(confidences)
-    # print(scores)
-
-    # return (predicted, predicted_labels, zip(x, predicted_labels, confidences))
     return zip(x, predicted_labels, confidences)
 
 def filter_list(items, ignore_items):
@@ -122,7 +91,6 @@ def transform_issue(issue, ignore_labels=[]):
     number = issue['number']
     return (number, text, labels)
 
-# simple JSON echo script
 def train_issues(owner, repo, issues, ignore_labels = []):
 
     # Filter issues
@@ -145,7 +113,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     # Check for labels with insufficient number of examples
     remove_labels = ['duplicate']
     for label in label_counts.keys():
-        if label_counts[label] < n_folds:
+        if label_counts[label] < k_folds:
             remove_labels.append(label)
 
     # Check if we have enough different classes remaining!
@@ -189,7 +157,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
 
     # print("Issues", x_train, y_train)
     # Check if we have enough issues remaining!
-    if len(x_train) < n_folds:
+    if len(x_train) < k_folds:
         # print("Not enough issues!", len(x_train))
         return ({
             "ok": False,
@@ -302,7 +270,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             "f1": metrics.f1_score(Y, pred_y)
         },
         "params": {
-            "n_folds": n_folds,
+            "k_folds": k_folds,
         },
         "issues": {
             "total": len(X_train),

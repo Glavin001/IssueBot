@@ -82,6 +82,7 @@ export default class Syncing extends Component {
   render() {
 
     let trainLabels = _.get(this.state, 'results.train_labels');
+    let repo = _.get(this.state, 'results.repo');
 
     return (<div>
         <h1>Issue Manager</h1>
@@ -111,7 +112,11 @@ export default class Syncing extends Component {
         <If condition={ !!this.state.doneTasks }>
           <Then>
             <div>
-              <h1 id="training-results">Results</h1>
+              <h1 id="training-results">
+                Results for <a href={`https://github.com/${repo.owner}/${repo.name}`} target="_blank">
+                  {repo.owner}/{repo.name}
+                </a>
+              </h1>
               <p className="lead">This is what we learned by analyzing your Issues!</p>
 
               <div className="label-results">
@@ -130,8 +135,8 @@ export default class Syncing extends Component {
                       <div>
                         <p>
                         You may have noticed some missing labels.
-                        We are using <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">k-fold cross-validation</a> with k={_.get(trainLabels, 'params.n_folds')}.
-                        This technique requires that we have at least {_.get(trainLabels, 'params.n_folds')} Issues for a given label (or class) to train from.
+                        We are using <a href="http://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">k-fold cross-validation</a> with k={_.get(trainLabels, 'params.k_folds')}.
+                        This technique requires that we have at least {_.get(trainLabels, 'params.k_folds')} Issues for a given label (or class) to train from.
                         </p>
                         <div>
                           The following labels were removed:
@@ -139,7 +144,7 @@ export default class Syncing extends Component {
                             {_.map(_.get(trainLabels, 'labels.remove_labels') || [], (label) => {
                               let count = _.get(trainLabels, 'labels.label_counts.'+label);
                               return (<li>
-                                <span className="label-removed  label label-default">{label}</span> with only {count} issue{count > 1 ? 's' : ''}
+                                <span className="label-removed  label label-default">{label}</span> from {count} issue{count > 1 ? 's' : ''}
                               </li>);
                             })}
                           </ul>
