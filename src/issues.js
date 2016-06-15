@@ -17,11 +17,7 @@ module.exports = {
 
   getIssues(github, user, repo, progressCb) {
 
-
     return new Promise((resolve, reject) => {
-
-      // FIXME: make this dynamic
-      // let numOfIssues = 5000;
 
       github.search.issues({
         q: `repo:${user}/${repo}`,

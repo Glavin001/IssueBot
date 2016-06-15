@@ -17,20 +17,20 @@ const handlers = _.chain(fs.readdirSync(__dirname))
 
 // Bind event listeners to new sockets
 module.exports = function(socket, io) {
-  console.log('a user connected');
+  // console.log('a user connected');
 
   /**
   When socket disconnects
   */
   socket.on('disconnect', function() {
-    console.log('user disconnected');
+    // console.log('user disconnected');
   });
 
   /**
   Authenticate Socket with GitHub token
   */
   socket.on(EVENTS.AUTHENTICATE, (token, cb) => {
-    console.log(EVENTS.AUTHENTICATE, token);
+    // console.log(EVENTS.AUTHENTICATE, token);
     const github = new GitHubApi({
       debug: false,
     });

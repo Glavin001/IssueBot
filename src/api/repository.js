@@ -37,7 +37,7 @@ module.exports = function(socket, io) {
 
       // Repository specific progress emitter
       let progress = (data) => {
-        console.log('Progress', data);
+        // console.log('Progress', data);
         io.sockets. in(repoRoom).emit(EVENTS.REPOSITORY_SYNC_PROGRESS, data);
       };
 
@@ -86,7 +86,7 @@ module.exports = function(socket, io) {
           }
           getIssues(socket.github, owner, name, showProgress)
           .then((results) => {
-            console.log('Has Issues!', results.length);
+            // console.log('Has Issues!', results.length);
             // Transform GitHub Issues list
             let issues = _.map(results, Issue.transformFields);
 
@@ -95,7 +95,7 @@ module.exports = function(socket, io) {
               percent: 1
             });
 
-            console.log('Finished getting issues!');
+            // console.log('Finished getting issues!');
             cb(null, issues);
           })
           .catch((err) => {
@@ -106,7 +106,7 @@ module.exports = function(socket, io) {
         Create records for Repository and Issues
         */
         records: ['repo', 'issues', (results, cb) => {
-          console.log('Bulk insert records!');
+          // console.log('Bulk insert records!');
 
           progress({
             task: REPOSITORY_SYNC_TASKS.DATABASE,
@@ -180,7 +180,7 @@ module.exports = function(socket, io) {
             }
           }, (err) => {
             if (err) {
-              console.log('webhook error', err);
+              // console.log('webhook error', err);
               let errorMessage = err && err.message;
               try {
                 errorMessage = _.get(JSON.parse(err.message), 'errors[0].message');
@@ -189,6 +189,8 @@ module.exports = function(socket, io) {
                 // These errors are likely because of duplicate webhook.
                 // We can write webhooks but cannot read, so we write assuming it does not exist
                 // and fail silently otherwise.
+
+                // TODO: Check if error message is related to this being a duplicate webhook
               }
               progress({
                 task: REPOSITORY_SYNC_TASKS.WEBHOOK,
@@ -202,7 +204,6 @@ module.exports = function(socket, io) {
               });
             }
             return cb();
-            // return cb(err && err.message);
           });
         }],
         /**
@@ -286,12 +287,9 @@ module.exports = function(socket, io) {
           return cb();
         }]
       }, (err, results) => {
-        console.log('Done!', err, Object.keys(results));
+        // console.log('Done!', err, Object.keys(results));
         socket.leave(repoRoom);
-
-        // TOOD:
         return cb(err && err.message, results);
-
       });
 
     } else {

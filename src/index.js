@@ -45,20 +45,20 @@ sequelize.sync({
   });
 
   app.post('/webhook', (req, res) => {
-    console.log('webhooks!');
+    // console.log('Webhook received!');
     webhookHandler(req, res, (err) => {
-      console.error(err);
+      console.log('Webhook error:', err);
       res.statusCode = 404;
-       res.end('no such location');
+      res.end('no such location');
     });
   });
 
   githubOAuth.on('error', function(err) {
-    console.error('there was a login error', err);
+    console.log('GitHub Login error: ', err);
   });
 
   githubOAuth.on('token', function(token, res) {
-    console.log('here is your shiny new github oauth token', token);
+    // console.log('here is your shiny new github oauth token', token);
     let access_token = token.access_token;
     // res.end(JSON.stringify(token));
     res.redirect(`${config.get('app.base_url')}/#/setup?access_token=${access_token}`);

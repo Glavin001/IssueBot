@@ -37,8 +37,6 @@ module.exports = function(socket) {
       per_page: 100
     });
     socket.github.getAllPages(socket.github.repos.getAll, options, function(err, res) {
-      // console.log(res.map(function(repo) { return repo['full_name']; }));
-      // console.log(res.length);
       return cb(err && err.message, res);
     });
 
