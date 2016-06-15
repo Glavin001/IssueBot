@@ -102,6 +102,14 @@ Replace `github.client_id` (`CLIENT_ID`) and `github.client_secret` (`CLIENT_SEC
 ### Database
 
 1. Install [PostgreSQL](https://www.postgresql.org)
+
+```bash
+# Create a database
+initdb /usr/local/var/postgres9.5 -E utf8
+# Start Postgres with specific database directory
+postgres -D /usr/local/var/postgres9.5
+```
+
 2. Create database with `createdb issuemanager`
 3. Create database user with:
 
