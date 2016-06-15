@@ -1,6 +1,6 @@
 # IssueBot
 
-> Your person assistant for automatically organizing and replying to Issue.
+> Your personal assistant for automatically organizing and replying to Issues.
 
 ---
 
