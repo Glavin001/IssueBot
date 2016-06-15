@@ -14,6 +14,8 @@
 
 If you find yourself saying **Yes**, then `IssueBot` is made for you!
 
+Skip to [**Step 5. Profit** section](#step-5-profit) below for some screenshots and a feature overview!
+
 ## Getting Started
 
 ### Step 1. Login with GitHub
