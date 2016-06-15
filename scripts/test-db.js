@@ -12,7 +12,9 @@ sequelize
   .authenticate()
   .then(function(err) {
     console.log('Connection has been established successfully.');
+    process.exit(0);
   })
   .catch(function (err) {
     console.log('Unable to connect to the database:', err);
+    process.exit(1);
   });
