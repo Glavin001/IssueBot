@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const config = require('config');
 const GitHubApi = require("github");
-const GitHubToken = config.get('github.token');
 
 module.exports = function(sequelize, DataTypes) {
   var Repository = sequelize.define("Repository", {

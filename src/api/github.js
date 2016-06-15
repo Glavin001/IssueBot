@@ -3,11 +3,6 @@ const { EVENTS, ERRORS } = require('../constants');
 const GitHubApi = require("github");
 const _ = require('lodash');
 
-const GitHubToken = config.get('github.token');
-const github = new GitHubApi({
-  debug: false,
-});
-
 module.exports = function(socket) {
   /**
   Get user information

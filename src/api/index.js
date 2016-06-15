@@ -5,7 +5,6 @@ const fs = require('fs');
 const config = require('config');
 const { EVENTS } = require('../constants');
 const GitHubApi = require("github");
-const GitHubToken = config.get('github.token');
 
 // Setup
 const handlers = _.chain(fs.readdirSync(__dirname))

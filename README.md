@@ -16,6 +16,9 @@ If you find yourself saying **Yes**, then `IssueBot` is made for you!
 
 Skip to [**Step 5. Profit** section](#step-5-profit) below for some screenshots and a feature overview!
 
+Skip to [**Installation** section](#installation) below for instructions on how to run the service yourself!
+
+
 ## Getting Started
 
 ### Step 1. Login with GitHub
@@ -76,7 +79,29 @@ Here are some examples.
 
 ## Installation
 
-1. Install PostgreSQL
+**Note**: Installation process needs a little love.
+Below are details for how I get it running on my machine.
+
+### Config
+
+[node-config](https://github.com/lorenwest/node-config) handles configuration.
+Create a local configuration file, that will be ignored by Git:
+
+```bash
+cp config/default.js config/local.js
+```
+
+### GitHub App
+
+Go to https://github.com/settings/developers and `Register a new application`.
+Replace `github.client_id` (`CLIENT_ID`) and `github.client_secret` (`CLIENT_SECRET`) in `config/local.js`.
+
+**Optional**: If you want to run `node scripts/get-issues.js` you should create a `Personal access token` at https://github.com/settings/tokens and replace `github.token` (`TOKEN`) in `config/local.js`.
+
+
+### Database
+
+1. Install [PostgreSQL](https://www.postgresql.org)
 2. Create database with `createdb issuemanager`
 3. Create database user with:
 
@@ -85,8 +110,48 @@ $ psql issuemanager
 issuemanager=# create user issuemanager password 'CHANGE_ME_PASSWORD';
 ```
 
-4. Test database with `node scripts/test-db.js`
-5. Start the server with `npm start`
+4. Edit your configuration in `config/local.js` under key `db`.
+5. Test database with `node scripts/test-db.js`
 
+### Tunnels to Localhost
+
+Install [ngrok](https://ngrok.com) and run the following:
+
+```bash
+ngrok http -subdomain=issue-manager-web 8080
+ngrok http -subdomain=issue-manager 8081
+```
+
+Edit `config/local.js` to have the following corresponding configuration:
+
+```
+"server": {
+  "base_url": "http://issue-manager.ngrok.io",
+  "port": 8081
+},
+"app": {
+  "base_url": "http://issue-manager-web.ngrok.io"
+},
+```
+
+### Python
+
+Install [Python](https://www.python.org) and [pip](https://pip.pypa.io/en/stable/installing/) the run the following:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Node.js
+
+Install dependencies with `npm install`.
+
+Start [Webpack](https://webpack.github.io) development server with `npm run start:webpack`.
+
+Finally, start the server with `npm run start:server`.
+
+**Note**: `npm start` is equivalent to running both `npm run start:webpack` and `npm run start:server` in parallel.
+
+Go to http://issue-manager-web.ngrok.io to view the web application!
 
 

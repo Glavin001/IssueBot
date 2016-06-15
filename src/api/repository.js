@@ -1,7 +1,6 @@
 const config = require('config');
 const {EVENTS, ERRORS, REPOSITORY_SYNC_TASKS} = require('../constants');
 const GitHubApi = require("github");
-const GitHubToken = config.get('github.token');
 const parseGitHubUrl = require('parse-github-url');
 const {Repository, Issue} = require('../models');
 const async = require('async');
