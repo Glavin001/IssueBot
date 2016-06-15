@@ -141,7 +141,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             remove_labels.append(label)
 
     # Check if we have enough different classes remaining!
-    if len(label_counts.keys()) - len(remove_labels) <= 1:
+    if len(set(label_counts.keys()) - set(remove_labels)) <= 1:
         # print("Not enough different classes!")
         return ({
             "ok": False,
