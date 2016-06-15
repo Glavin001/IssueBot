@@ -10,7 +10,6 @@
   <img width="356" alt="issue-bot-issues-count-nodejs" src="https://cloud.githubusercontent.com/assets/1885333/16065496/a4efe15c-3281-11e6-9500-9e2d24bf29eb.png">
 - Are you maintaining a project with many issues and finding it difficult to stay organized?
 - Seeing double, or more, because your users will submit duplicate issues without searching first?
-<!-- - Want to know which issues should be top priority and which could wait? -->
 - Wish you had someone else to help manage your Issues with you?
 
 If you find yourself saying **Yes**, then `IssueBot` is made for you!
@@ -55,8 +54,10 @@ Be patience while the repository is syncing and training predictive machine lear
 Using GitHub Webhooks, Issues will be processed automatically.
 
 | Automatically Label Issues | Find similar / duplicate issues |
-| -- | -- |
-| <img width="1035" alt="issue-bot-issue-labelling-similarity" src="https://cloud.githubusercontent.com/assets/1885333/16065304/eae259c6-327f-11e6-869f-7af8970cb215.png"> | <img width="1028" alt="issue-bot-issue-labelling" src="https://cloud.githubusercontent.com/assets/1885333/16065305/eaf29868-327f-11e6-9d1d-4a6cc82bc313.png"> |
+| --- | --- |
+| Example of Issue automatically labelled as `bug` | Example of Issue labelled as `question` and similar issue suggested |
+| ![issue-bot-issue-labelling](https://cloud.githubusercontent.com/assets/1885333/16065305/eaf29868-327f-11e6-9d1d-4a6cc82bc313.png) | ![issue-bot-issue-labelling-similarity](https://cloud.githubusercontent.com/assets/1885333/16065304/eae259c6-327f-11e6-869f-7af8970cb215.png) |
+
 
 #### Example Results
 
