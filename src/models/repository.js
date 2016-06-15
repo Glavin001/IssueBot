@@ -30,18 +30,14 @@ module.exports = function(sequelize, DataTypes) {
         ]);
       },
       trainLabels() {
-        // TODO:
-        console.log(`Train issue labels for repository: ${this.id}`);
+        // console.log(`Train issue labels for repository: ${this.id}`);
 
         // Get all associated Issues
         const {Issue} = require('../models');
-        return Issue.findAll({
-          where: {
-            repository_id: this.id
-          }
-        }).then((issues) => {
+        return Issue.issuesForRepo(this.id)
+        .then((issues) => {
           issues = _.map(issues, (issue) => issue.toJSON());
-          console.log('Found issues!', issues.length, issues);
+          // console.log('Found issues!', issues.length, issues);
 
           // Create dataset for training
           let {owner, name} = this;
@@ -51,8 +47,8 @@ module.exports = function(sequelize, DataTypes) {
           // Start the training
           return train('labels', [owner, name, issues, ignoreLabels])
           .then((resp) => {
-            console.log(`Finished training repository '${this.owner}/${this.name}' with ${issues.length} issues`);
-            console.log(JSON.stringify(_.pick(resp, ['score','wrong','total','percentage','newly_labeled_issues']), undefined, 2));
+            // console.log(`Finished training repository '${this.owner}/${this.name}' with ${issues.length} issues`);
+            // console.log(JSON.stringify(_.pick(resp, ['score','wrong','total','percentage','newly_labeled_issues']), undefined, 2));
             return resp;
           });
         })

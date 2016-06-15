@@ -245,7 +245,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
     # print(Y)
     # print(pred_train)
     report = str(metrics.classification_report(Y, pred_y, target_names=target_names))
-    print(report)
+    # print(report)
     # confusion_matrix = metrics.confusion_matrix(Y, pred_y)
     # print(confusion_matrix)
 

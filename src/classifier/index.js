@@ -15,8 +15,8 @@ function _run(data) {
     pyshell.on('message', (m) => {
         try {
           message = JSON.parse(m);
-          console.log('JSON Message: ');
-          console.log(JSON.stringify(message, undefined, 2));
+          // console.log('JSON Message: ');
+          // console.log(JSON.stringify(message, undefined, 2));
         } catch (err) {
           console.log('Text Message: ', m);
         }
@@ -32,7 +32,7 @@ function _run(data) {
 }
 
 function train(trainType, data) {
-  console.log('Training',trainType,data);
+  // console.log('Training',trainType,data);
   return _run([
     "train_"+trainType,
     data
