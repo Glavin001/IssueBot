@@ -16,5 +16,16 @@ describe('Classifier', function() {
         assert.equal(results.issues.total, issues.length);
       });
     });
+
+    it('should return error complaining not enough issues', function () {
+      return train('labels', [owner, repo, [], []])
+      .then((results) => {
+        // console.log(results);
+        assert.equal(results.ok, false);
+        assert.equal(results.error_message, "Number of different labels provided was insufficient.");
+      });
+    });
+
+
   });
 });

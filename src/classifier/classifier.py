@@ -22,6 +22,10 @@ from sklearn.metrics.pairwise import pairwise_distances
 # General Helpers
 #################################################################
 
+ERRORS = {
+    "InsufficientLabels": "Number of different labels provided was insufficient."
+}
+
 def persist_model(owner, repo, model_name, model):
     # Persist the model
     model_path = os.path.abspath(os.path.join('./data',owner,repo,model_name,'model.pkl'))
@@ -145,7 +149,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
         # print("Not enough different classes!")
         return ({
             "ok": False,
-            "error_message": "Not enough different labels.",
+            "error_message": ERRORS['InsufficientLabels'],
             "label_counts": label_counts,
             "all_labels": label_counts.keys(),
             "remove_labels": remove_labels
@@ -185,7 +189,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
         # print("Not enough issues!", len(x_train))
         return ({
             "ok": False,
-            "error_message": "Not enough different labels.",
+            "error_message": ERRORS['InsufficientLabels'],
             "label_counts": label_counts,
             "all_labels": label_counts.keys(),
             "remove_labels": remove_labels
