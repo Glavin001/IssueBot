@@ -33,4 +33,4 @@ RUN npm install
 # ENV INITSYSTEM on
 
 # Run on device
-CMD "npm start"
+CMD npm start
