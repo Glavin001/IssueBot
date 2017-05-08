@@ -25,12 +25,27 @@ WORKDIR /usr/src/app
 # Copy the application project
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-
 COPY package.json .
 RUN npm install
+
+# Create PostgreSQL database
+COPY scripts/create-database.sh scripts/create-database.sh
+RUN chmod +x scripts/create-database.sh
+RUN scripts/create-database.sh
+
+# Build
+COPY webpack.config.babel.js \
+	.babelrc \
+	./
+COPY scripts/ scripts/
+RUN chmod +x scripts/start.sh
+COPY config/ config/
+COPY src/ src/
+COPY public/src/ public/src/
+RUN npm run build
 
 # Enable systemd init system in container
 # ENV INITSYSTEM on
 
 # Run on device
-CMD npm start
+CMD scripts/start.sh

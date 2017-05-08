@@ -1,0 +1,16 @@
+{
+    "server": {
+      "base_url": "http://localhost:8080",
+      "port": 80
+    },
+    "app": {
+      "base_url": "http://localhost:8080"
+    },
+    "db": {
+      "database": "issuemanager",
+      "username": "resin",
+      "password": "resin",
+      "host": "localhost",
+      "dialect": "postgres"
+    }
+}

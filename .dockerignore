@@ -1,0 +1,4 @@
+config/local.json
+public/dist/
+node_modules/
+data/
