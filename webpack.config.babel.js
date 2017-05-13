@@ -2,18 +2,17 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: {
-    // 'webpack-dev-server/client?http://localhost:3000',
-    // 'webpack/hot/only-dev-server',
-    // './public/src/js/app.jsx',
-    javascript: './public/src/js/app.jsx',
-    html: './public/src/index.html'
+    bundle: [
+      './public/src/js/app.jsx',
+      './public/src/index.html'
+    ]
   },
   output: {
-    path: './public/dist',
-    filename: 'app.bundle.js'
+    path: __dirname + '/public/dist',
+    filename: '[name].js'
   },
   resolve: {
-    extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx"]
+    extensions: [".webpack.js", ".web.js", ".js", ".jsx"]
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()
@@ -22,11 +21,11 @@ module.exports = {
     loaders: [
       {
         test: /\.html$/,
-        loader: "file?name=[name].[ext]"
+        loader: "file-loader?name=[name].[ext]"
       }, {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loaders: ['react-hot', 'babel?'+JSON.stringify({
+        loaders: ['react-hot-loader', 'babel-loader?'+JSON.stringify({
           presets: [
             'react', 'es2015'
           ],
@@ -37,10 +36,10 @@ module.exports = {
         })]
       }, {
         test: /\.css$/,
-        loader: 'style!css'
+        loader: 'style-loader!css-loader'
       }, {
         test: /\.scss$/,
-        loaders: ["style", "css", "sass"]
+        loaders: ["style-loader", "css-loader", "sass-loader"]
       },
       // the url-loader uses DataUrls.
       // the file-loader emits files.

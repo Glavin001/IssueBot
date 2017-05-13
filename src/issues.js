@@ -15,20 +15,20 @@ const githubPageSize = 100;
 
 module.exports = {
 
-  getIssues(github, user, repo, progressCb) {
+  getIssues(github, owner, repo, progressCb) {
 
     return new Promise((resolve, reject) => {
 
       github.search.issues({
-        q: `repo:${user}/${repo}`,
+        q: `repo:${owner}/${repo}`,
         page: 1,
         per_page: 1
-      }, (err, results) => {
+      }, (err, { data }) => {
         if (err) {
           return reject(err);
         }
-        // console.log('search', err, results);
-        let numOfIssues = results.total_count;
+        console.log('search', err, data);
+        let numOfIssues = data.total_count;
         let completed = 0;
         const progress = () => {
           if (typeof progressCb === 'function') {
@@ -45,12 +45,12 @@ module.exports = {
         let pages = range(1, parseInt(numOfIssues / githubPageSize) + 2, 1);
         async.map(pages, (page, cb) => {
           github.issues.getForRepo({
-            user,
+            owner,
             repo,
             page,
             state: 'all',
             per_page: githubPageSize
-          }, (err, issues = []) => {
+          }, (err, { data: issues = [] } = {}) => {
 
             completed += issues.length;
             progress();

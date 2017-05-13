@@ -32,8 +32,9 @@ export default class Setup extends Component {
   componentDidMount() {
     console.log('Loading!');
 
-    this.context.socket.emit(EVENTS.AUTHENTICATE, this.state.token, (err, user) => {
-      console.log(err, user);
+    this.context.socket.emit(EVENTS.AUTHENTICATE, this.state.token, (err, result) => {
+      console.log(err, result);
+      const user = result.data;
       this.setState({
         user
       });
@@ -52,15 +53,14 @@ export default class Setup extends Component {
       isValidRepository: null, // Pending
     });
     this.context.socket.emit(EVENTS.PARSE_REPOSITORY_URL, value, (repo) => {
-      // console.log('repo', repo);
       if (repo && repo.name) {
         this.context.socket.emit(EVENTS.GITHUB_REPO, {
-          user: repo.owner,
+          owner: repo.owner,
           repo: repo.name
-        }, (err, repo) => {
+        }, (err, result) => {
           this.setState({
-            repo,
-            isValidRepository: !!repo
+            repo: result.data,
+            isValidRepository: Boolean(result && result.data)
           });
         });
       } else {

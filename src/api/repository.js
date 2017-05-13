@@ -43,6 +43,7 @@ module.exports = function(socket, io) {
 
       // Get all Issues for a GitHub Repository
       let {owner, name} = repo;
+      console.log("repo", repo);
 
       async.auto({
         /**
@@ -55,13 +56,13 @@ module.exports = function(socket, io) {
           });
 
           socket.github.repos.get({
-            user: owner,
+            owner,
             repo: name
-          }, (err, repo) => {
+          }, (err, { data }) => {
             if (err) {
               return cb(err);
             }
-            repo = Repository.transformFields(repo);
+            repo = Repository.transformFields(data);
             // Attach the authentication token for repository access later
             repo.token = socket.token;
 
@@ -117,7 +118,8 @@ module.exports = function(socket, io) {
           let repo = results.repo;
           let {issues} = results;
           let repoId = repo.id;
-          Repository.upsert(results.repo)
+          console.log('repo', repo);
+          Repository.upsert(repo)
           .then(() => {
             progress({
               task: REPOSITORY_SYNC_TASKS.DATABASE,
@@ -168,7 +170,7 @@ module.exports = function(socket, io) {
           // let webhookUrl = `${config.get('server.base_url')}/webhook/${repo.owner}/${repo.name}`;
           let webhookUrl = `${config.get('server.base_url')}/webhook`;
           socket.github.repos.createHook({
-            user: repo.owner,
+            owner: repo.owner,
             repo: repo.name,
             name: 'web',
             events: ['issues','issue_comment','pull_request'],

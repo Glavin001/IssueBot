@@ -20,7 +20,7 @@ module.exports = function(socket) {
   */
   socket.on(EVENTS.GITHUB_REPO, (options, cb) => {
     if (!socket.github) return cb(ERRORS.MISSING_GITHUB);
-
+    console.log(options);
     socket.github.repos.get(options, function(err, res) {
       return cb(err && err.message, res);
     });

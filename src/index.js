@@ -11,6 +11,8 @@ const {sequelize, Repository, Issue} = require("./models");
 const createHandler = require('github-webhook-handler');
 const webhookHandler = createHandler({ path: '/webhook', secret: config.get('github.webhook_secret') });
 
+console.log(config);
+
 sequelize.sync({
   // force: true
 }).then(() => {

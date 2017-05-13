@@ -6,7 +6,7 @@ module.exports = Object.freeze({
     REPOSITORY_SYNC_PROGRESS: 'repository sync progress',
     PARSE_REPOSITORY_URL: 'repository validate url',
     GITHUB_USER: 'github /user',
-    GITHUB_REPO: 'github /repos/:user/:repo',
+    GITHUB_REPO: 'github /repos/:owner/:repo',
     GITHUB_USER_REPOS: 'github /user/repos',
   },
   ERRORS: {
