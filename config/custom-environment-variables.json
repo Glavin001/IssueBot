@@ -3,5 +3,12 @@
         "token": "GITHUB_TOKEN",
         "client_id": "GITHUB_CLIENT_ID",
         "client_secret": "GITHUB_CLIENT_SECRET"
+    },
+    "db": {
+        "database": "DB_DATABASE",
+        "username": "DB_USERNAME",
+        "password": "DB_PASSWORD",
+        "host": "DB_HOST",
+        "dialect": "DB_DIALECT"
     }
 }
