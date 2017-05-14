@@ -68,32 +68,42 @@ module.exports = function(sequelize, DataTypes) {
           debug: false,
         });
         // Create an authenticated GitHub client
-        github.authenticate({type: "oauth", token: this.token});
+        github.authenticate({
+          type: "oauth",
+          token: this.token,
+          // key: config.get('github.client_id'),
+          // secret: config.get('github.client_secret'),
+        });
+
         return github;
       },
       addLabelsToIssue(issue, labels) {
+        console.log('addLabelsToIssue', issue, labels);
         let {number} = issue;
         let {owner, name} = this;
         let github = this.getGitHubClient();
         github.issues.addLabels({
-          user: owner,
+          owner,
           repo: name,
           number,
-          body: labels
-        });
+          labels
+        })
+        .catch(err => console.error(err));
       },
       addCommentToIssue(issue, body) {
+        console.log('addCommentToIssue', issue, body);
         let {number} = issue;
         let {owner, name} = this;
         let github = this.getGitHubClient();
         // Add signature to body
         body += config.get('comments.signature');
         github.issues.createComment({
-          user: owner,
+          owner,
           repo: name,
           number,
           body
-        });
+        })
+        .catch(err => console.error(err));
       }
     },
     classMethods: {

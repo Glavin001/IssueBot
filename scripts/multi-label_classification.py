@@ -10,8 +10,8 @@ import classifier
 
 # Get JSON data
 user = "Glavin001"
-repo = "test-issues"
-# repo = "atom-beautify"
+# repo = "test-issues"
+repo = "atom-beautify"
 # repo = "atom-preview"
 # user = "reactjs"
 # repo = "redux"

@@ -108,7 +108,8 @@ def filter_list(items, ignore_items):
     return items
 
 def transform_issue(issue, ignore_labels=[]):
-    labels = filter_list(issue['labels'], ignore_labels)
+    # labels = filter_list(issue['labels'], ignore_labels)
+    labels = issue['labels']
     milestone = issue['milestone'] if 'milestone' in issue else None
     title = (issue['title'] or "").encode('utf-8')
     body = (issue['body'] or "").encode('utf-8')
@@ -139,7 +140,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             else:
                 label_counts[label] = 1
     # Check for labels with insufficient number of examples
-    remove_labels = ['duplicate', 'wontfix']
+    remove_labels = ['duplicate', 'wontfix'] + ignore_labels
     for label in label_counts.keys():
         if label_counts[label] < k_folds:
             remove_labels.append(label)
@@ -152,7 +153,8 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             "error_message": ERRORS['InsufficientLabels'],
             "label_counts": label_counts,
             "all_labels": label_counts.keys(),
-            "remove_labels": remove_labels
+            "remove_labels": remove_labels,
+            "ignore_labels": ignore_labels
         })
 
     number_train = []
@@ -166,10 +168,11 @@ def train_issues(owner, repo, issues, ignore_labels = []):
         (number, text, labels) = issue
 
         # Remove labels with insufficient number of examples
-        for label in remove_labels:
-            if label in labels:
-                labels.remove(label)
-                # print("removed label ",label)
+        labels = filter_list(labels, remove_labels)
+        # for label in remove_labels:
+        #     if label in labels:
+        #         labels.remove(label)
+        #         # print("removed label ",label)
 
         if len(labels) > 0: # and issue['state'] == 'closed':
         # if milestone != None:
@@ -192,7 +195,8 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             "error_message": ERRORS['InsufficientLabels'],
             "label_counts": label_counts,
             "all_labels": label_counts.keys(),
-            "remove_labels": remove_labels
+            "remove_labels": remove_labels,
+            "ignore_labels": ignore_labels
         })
 
     X_train = np.array(x_train)
@@ -309,6 +313,7 @@ def train_issues(owner, repo, issues, ignore_labels = []):
             "label_counts": label_counts,
             "all_labels": label_counts.keys(),
             "remove_labels": remove_labels,
+            "ignore_labels": ignore_labels
         },
     })
 

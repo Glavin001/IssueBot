@@ -13,7 +13,7 @@
     "start:webpack-watch": "webpack --watch",
     "start:webpack": "webpack-dev-server --hot --inline",
     "start:server": "node src",
-    "start": "npm-run-all --parallel start:webpack start:server"
+    "start": "npm-run-all --parallel build:watch start:server"
   },
   "repository": {
     "type": "git",

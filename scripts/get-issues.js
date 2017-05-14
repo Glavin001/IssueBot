@@ -47,7 +47,7 @@ async.parallel([
 ], (err, results) => {
 
   // Get contents for each Issue
-  // console.log(err, issues);
+  console.log(err, results);
   let issues = results[1];
   issues = _.map(issues, (issue) => {
     issue.labels = _.map(issue.labels, 'name');

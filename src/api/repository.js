@@ -220,7 +220,7 @@ module.exports = function(socket, io) {
 
           let {repo} = results;
           let {owner, name} = repo;
-          let ignoreLabels = []; // TODO
+          let ignoreLabels = ['published', 'cannot-reproduce', 'high priority', 'in-progress', 'invalid', 'quick-todo', 'update-dependency', 'waiting-for-user-information', 'linux', 'mac']; // TODO
 
           train('labels', [owner, name, issues, ignoreLabels])
           .then((resp) => {

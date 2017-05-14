@@ -23,7 +23,7 @@ module.exports = {
         q: `repo:${owner}/${repo}`,
         page: 1,
         per_page: 1
-      }, (err, { data }) => {
+      }, (err, { data } = {}) => {
         if (err) {
           return reject(err);
         }

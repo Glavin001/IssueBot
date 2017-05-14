@@ -11,9 +11,9 @@ services:
       - /data
     environment:
       - NODE_ENV=docker
-      - GITHUB_TOKEN=e7e0a931acf36746269b229424ba769f409a8d16
-      - GITHUB_CLIENT_ID=33beb04a03e6bdee1049
-      - GITHUB_CLIENT_SECRET=a9d801431462dd5c7aef4c62548975da4d3fcac5
+      - GITHUB_TOKEN
+      - GITHUB_CLIENT_ID
+      - GITHUB_CLIENT_SECRET
       - DB_DATABASE=issuebot
       - DB_USERNAME=issuebot
       - DB_PASSWORD=issuebot

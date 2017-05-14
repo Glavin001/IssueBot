@@ -34,8 +34,13 @@ module.exports = function(socket, io) {
     const github = new GitHubApi({
       debug: false,
     });
+
     // Create an authenticated GitHub client
-    github.authenticate({type: "oauth", token: token});
+    github.authenticate({
+      type: "oauth",
+      token: token
+    });
+
     // Test the client by attempting to get the user's information
     github.users.get({}, function(err, res) {
       if (err) {

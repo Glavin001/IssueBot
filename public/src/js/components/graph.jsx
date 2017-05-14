@@ -99,7 +99,11 @@ export default class Graph extends Component {
     // }
 
     var updateNode = (selection) => {
-      selection.attr("transform", (d) => "translate(" + d.x + "," + d.y + ")");
+      console.log('selection', selection);
+      selection.attr("transform", (d) => {
+        console.log('d', d);
+        return "translate(" + d.x + "," + d.y + ")"
+      });
     };
 
     var enterLink = (selection) => {
@@ -142,7 +146,8 @@ export default class Graph extends Component {
     console.log('svg', svg, g);
     // .scaleExtent([1, 100])
     svg.call(d3.behavior.zoom().on("zoom", () => {
-      g.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+      // console.log('d3.event', d3.event);
+      d3.event && g.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
     }))
     .on("dblclick.zoom", null);
 
